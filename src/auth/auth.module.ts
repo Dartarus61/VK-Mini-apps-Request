@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
   providers: [AuthService],
   imports: [
     JwtModule.register({
-      secret: PRIVATE_KEY,
+      secret: process.env.PRIVATE_KEY,
     }),
     SequelizeModule.forFeature([User]),
   ],

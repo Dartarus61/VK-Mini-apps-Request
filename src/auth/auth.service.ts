@@ -33,12 +33,13 @@ export class AuthService {
     return token;
   }
 
-  private generateToken(user: User) {
+  private async generateToken(user: User) {
     const payload = {
-      userId: user.userId,
-      id: user.id,
+      id: user.userId,
     };
-    return this.jwtService.sign(payload, { secret: PRIVATE_KEY });
+    return {
+      token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
+    };
   }
 
   verifyLaunchParams(
