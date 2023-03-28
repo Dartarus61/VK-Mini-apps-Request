@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/models/user.model';
 import { AuthenticationDTO } from './dto/authentication.dto';
 import { ParsedUrlQuery } from 'querystring';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { IQueryParam } from './interface/queryParam.interface';
 import { PRIVATE_KEY } from 'src/core/config';
 import { JwtService } from '@nestjs/jwt';
@@ -28,17 +28,17 @@ export class AuthService {
       user = await this.userRepos.create({ userId: dto.userId });
     }
 
-    return await this.generateToken(user);
+    const token = await this.generateToken(user);
+
+    return token;
   }
 
-  private async generateToken(user: User) {
+  private generateToken(user: User) {
     const payload = {
       userId: user.userId,
       id: user.id,
     };
-    return {
-      token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
-    };
+    return this.jwtService.sign(payload, { secret: PRIVATE_KEY });
   }
 
   verifyLaunchParams(
