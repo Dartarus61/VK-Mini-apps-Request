@@ -16,8 +16,7 @@ export class AuthController {
     @Headers('Authorization') authorization,
     @Response() res: Res,
   ) {
-    return this.authService.signUpIn(
-      new AuthenticationDTO({ userId, authorization }),
-    );
+    const uri = authorization.split(' ')[1];
+    return this.authService.signUpIn(new AuthenticationDTO({ userId, uri }));
   }
 }
