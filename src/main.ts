@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { PORT } from './core/config';
 import { ValidationPipe } from './validation/validation.pipe';
 
 async function bootstrap() {
@@ -29,6 +30,6 @@ async function bootstrap() {
 
   //app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(4000);
+  await app.listen(PORT, () => console.log(`server started on ${PORT}`));
 }
 bootstrap();
