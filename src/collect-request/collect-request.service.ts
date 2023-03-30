@@ -26,7 +26,10 @@ export class CollectRequestService {
     }
 
     if (user.requests.length == 0) {
-      const request = await user.$create('requests', dto.title);
+      const request = await this.requestRepository.create({
+        title: dto.title,
+        userId: user.id,
+      });
 
       const uri = `${user.userId}_${request.id}`;
 
@@ -34,7 +37,10 @@ export class CollectRequestService {
 
       return this.requestRepository.findByPk(request.id);
     } else if (user.isPrem) {
-      const request = await user.$create('requests', dto.title);
+      const request = await this.requestRepository.create({
+        title: dto.title,
+        userId: user.id,
+      });
 
       const uri = `${user.userId}_${request.id}`;
 
