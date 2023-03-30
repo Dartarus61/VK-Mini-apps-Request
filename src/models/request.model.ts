@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-    BelongsTo,
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
@@ -23,13 +23,20 @@ export class Request extends Model<Request> {
   })
   id: number;
 
-  @ApiProperty({example: "Сбор в университете в 15.00", description: "Название заявки"})
-  @Column({type: DataType.STRING})
-  title: string
+  @ApiProperty({
+    example: 'Сбор в университете в 15.00',
+    description: 'Название заявки',
+  })
+  @Column({ type: DataType.STRING })
+  title: string;
 
-  @ApiProperty({example: "3546345_1", description: "URI заявки"})
-  @Column({type: DataType.STRING, allowNull: true})
-  uri: string
+  @ApiProperty({ example: true, description: 'Активна ли ссылка' })
+  @Column({ type: DataType.BOOLEAN, defaultValue: true })
+  active: boolean;
+
+  @ApiProperty({ example: '3546345_1', description: 'URI заявки' })
+  @Column({ type: DataType.STRING, allowNull: true })
+  uri: string;
 
   @ForeignKey(() => User)
   @Column

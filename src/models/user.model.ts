@@ -7,10 +7,11 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Col } from 'sequelize/types/utils';
 import { Request } from './request.model';
 import { Subcription } from './subcriptions.model';
 
-@Table({ tableName: 'User', timestamps: false, freezeTableName: true })
+@Table({ tableName: 'User', timestamps: true, freezeTableName: true })
 export class User extends Model<User> {
   @ApiProperty({ example: '1', description: 'Уникальный идентификатор' })
   @Column({
@@ -25,13 +26,20 @@ export class User extends Model<User> {
   @Column({ type: DataType.INTEGER, unique: true })
   userId: number;
 
-  @ApiProperty({example: true, description: "Флаг наличия премиума"})
-  @Column({type: DataType.BOOLEAN, defaultValue: false})
-  isPrem:boolean
+  @ApiProperty({ example: true, description: 'Флаг наличия премиума' })
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isPrem: boolean;
 
-  @ApiProperty({example: "15.12.2024", description: "Дата окончания премиума"})
-  @Column({type: DataType.STRING, allowNull: true})
-  expiredPrem: string
+  @ApiProperty({
+    example: '15.12.2024',
+    description: 'Дата окончания премиума',
+  })
+  @Column({ type: DataType.STRING, allowNull: true })
+  expiredPrem: string;
+
+  @ApiProperty({ example: true, description: 'Флаг включенных уведомлений' })
+  @Column({ type: DataType.BOOLEAN, defaultValue: true })
+  notify: boolean;
 
   @HasMany(() => Request)
   requests: Request[];

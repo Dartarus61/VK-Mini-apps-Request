@@ -1,10 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-
   Column,
   DataType,
   ForeignKey,
-
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -24,9 +22,9 @@ export class Subcription extends Model<Subcription> {
 
   @ForeignKey(() => User)
   @Column
-  bookId: number;
+  userId: number;
 
   @ForeignKey(() => Request)
   @Column
-  authorId: number;
+  requestId: number;
 }
