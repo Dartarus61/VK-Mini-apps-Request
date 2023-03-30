@@ -20,6 +20,12 @@ import { UserModule } from './user/user.module';
       models: [User, Request, Subcription],
       autoLoadModels: true,
       timezone: '+03:00',
+      pool: {
+        max: 5,
+        min: 0,
+        idle: 300000,
+        acquire: 300000,
+      },
       /* sync: { force: true }, */
       /* dialectOptions:{
         ssl:{
