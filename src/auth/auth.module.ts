@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { CollectRequestModule } from 'src/collect-request/collect-request.module';
 import { PRIVATE_KEY } from 'src/core/config';
 import { User } from 'src/models/user.model';
 import { UserModule } from 'src/user/user.module';
@@ -16,7 +17,8 @@ import { AuthService } from './auth.service';
       secret: process.env.PRIVATE_KEY,
     }),
     SequelizeModule.forFeature([User]),
-    UserModule
+    UserModule,
+    forwardRef(() => CollectRequestModule),
   ],
 })
 export class AuthModule {}

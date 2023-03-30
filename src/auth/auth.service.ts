@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/models/user.model';
 import { AuthenticationDTO } from './dto/authentication.dto';
@@ -8,12 +14,15 @@ import { IQueryParam } from './interface/queryParam.interface';
 import { PRIVATE_KEY } from 'src/core/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import { CollectRequestService } from 'src/collect-request/collect-request.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private userService: UserService
+    private userService: UserService,
+    @Inject(forwardRef(() => CollectRequestService))
+    private requestsService: CollectRequestService,
   ) {}
 
   async signUpIn(dto: AuthenticationDTO) {
@@ -23,10 +32,10 @@ export class AuthService {
       throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
     }
 
-    let user = await this.userService.getUserByVkUserId(dto.userId)
+    let user = await this.userService.getUserByVkUserId(dto.userId);
 
     if (!user) {
-      user = await this.userService.createUser(dto.userId)
+      user = await this.userService.createUser(dto.userId);
     }
 
     const token = await this.generateToken(user);
@@ -44,17 +53,36 @@ export class AuthService {
   }
 
   async getUserData(token: string) {
-    let payload = this.jwtService.verify(token, PRIVATE_KEY)
+    let payload = this.jwtService.verify(token, { secret: PRIVATE_KEY });
 
     if (!payload) {
-      throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN)
+      throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN);
     }
 
-    payload = payload.payload
+    payload = payload.payload;
 
-    const user = await this.userService.getUserByVkUserId(payload.userId)
+    const user = await this.userService.getUserByVkUserId(payload.userId);
 
-    return user
+    return user;
+  }
+
+  async whoAmI(token: string) {
+    const user = await this.getUserData(token);
+
+    const requestsCount = user.requests.length;
+
+    const countOfLeed = await this.requestsService.getCountOfLeeds(user);
+
+    const tempBodyOfUser = JSON.stringify(user, null, 2);
+    const userObject = JSON.parse(tempBodyOfUser);
+
+    const finalObject = {
+      ...userObject,
+      requestCount: requestsCount,
+      countOfLead: countOfLeed,
+    };
+
+    return finalObject;
   }
 
   private verifyLaunchParams(

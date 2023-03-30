@@ -1,5 +1,11 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthenticationDTO } from './dto/authentication.dto';
 
@@ -12,10 +18,17 @@ export class AuthController {
   @ApiResponse({ status: 200 })
   @Post('/signUpIn')
   signUpIn(
-    @Body('userId') userId: number,
+    @Body('userId')
+    userId: number,
     @Headers('Authorization') authorization,
   ) {
     const uri = authorization.split(' ')[1];
     return this.authService.signUpIn(new AuthenticationDTO({ userId, uri }));
+  }
+
+  @Get('/whoAmI')
+  whoAmI(@Headers('Authorization') authorization) {
+    const uri = authorization.split(' ')[1];
+    return this.authService.whoAmI(uri);
   }
 }
