@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './models/user.model';
@@ -11,10 +10,6 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot({
-      ttl: 6,
-      limit: 10,
-    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST || 'localhost',
@@ -24,7 +19,7 @@ import { UserModule } from './user/user.module';
       database: process.env.DB_NAME || 'vkma-auth',
       models: [User, Request, Subcription],
       autoLoadModels: true,
-      timezone: '+03:00'
+      timezone: '+03:00',
       /* sync: { force: true }, */
       /* dialectOptions:{
         ssl:{
