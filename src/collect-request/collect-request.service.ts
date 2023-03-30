@@ -33,7 +33,14 @@ export class CollectRequestService {
 
       const uri = `${user.userId}_${request.id}`;
 
-      await request.update('uri', uri);
+      await this.requestRepository.update(
+        { uri },
+        {
+          where: {
+            id: request.id,
+          },
+        },
+      );
 
       return this.requestRepository.findByPk(request.id);
     } else if (user.isPrem) {
@@ -44,7 +51,14 @@ export class CollectRequestService {
 
       const uri = `${user.userId}_${request.id}`;
 
-      await request.update('uri', uri);
+      await this.requestRepository.update(
+        { uri },
+        {
+          where: {
+            id: request.id,
+          },
+        },
+      );
 
       return this.requestRepository.findByPk(request.id);
     }
