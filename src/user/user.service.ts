@@ -1,10 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/models/user.model';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectModel(User) private userRepository: typeof User,
+    private authService: AuthService,
+  ) {}
 
   async createUser(userId: number) {
     const user = await this.userRepository.findOne({
@@ -39,5 +43,13 @@ export class UserService {
     });
 
     return user;
+  }
+
+  async editNotify(notify: boolean, token: string) {
+    const user = await this.authService.getUserData(token);
+
+    await user.update('notify', notify);
+
+    return this.userRepository.findByPk(user.id);
   }
 }
