@@ -22,7 +22,7 @@ export class CollectRequestController {
   @Post('/create')
   createRequest(
     @Body('title')
-    title: number,
+    title: string,
     @Headers('Authorization') authorization,
   ) {
     const uri = authorization.split(' ')[1];
@@ -34,7 +34,7 @@ export class CollectRequestController {
   @Put('/update')
   updateRequest(
     @Body('title')
-    title: number,
+    title: string,
     @Body('requestId')
     requestId: number,
     @Headers('Authorization') authorization,
