@@ -1,4 +1,9 @@
 export class CreateRequestDTO {
-    readonly title: string
-    readonly token: string
+  constructor(model) {
+    this.title = model.title;
+    this.token = model.uri;
+  }
+
+  readonly title: string;
+  readonly token: string;
 }

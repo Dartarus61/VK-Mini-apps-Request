@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from 'src/auth/auth.module';
 import { Request } from 'src/models/request.model';
@@ -10,7 +10,11 @@ import { CollectRequestService } from './collect-request.service';
 @Module({
   controllers: [CollectRequestController],
   providers: [CollectRequestService],
-  imports: [SequelizeModule.forFeature([Request, Subcription]),
-UserModule, AuthModule]
+  exports: [CollectRequestService],
+  imports: [
+    SequelizeModule.forFeature([Request, Subcription]),
+    forwardRef(() => UserModule),
+    forwardRef(() => AuthModule),
+  ],
 })
 export class CollectRequestModule {}
