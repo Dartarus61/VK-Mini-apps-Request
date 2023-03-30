@@ -7,12 +7,13 @@ import * as crypto from 'crypto';
 import { IQueryParam } from './interface/queryParam.interface';
 import { PRIVATE_KEY } from 'src/core/config';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User) private userRepos: typeof User,
     private jwtService: JwtService,
+    private userService: UserService
   ) {}
 
   async signUpIn(dto: AuthenticationDTO) {
@@ -22,10 +23,10 @@ export class AuthService {
       throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
     }
 
-    let user = await this.userRepos.findOne({ where: { userId: dto.userId } });
+    let user = await this.userService.getUserByVkUserId(dto.userId)
 
     if (!user) {
-      user = await this.userRepos.create({ userId: dto.userId });
+      user = await this.userService.createUser(dto.userId)
     }
 
     const token = await this.generateToken(user);
@@ -42,7 +43,21 @@ export class AuthService {
     };
   }
 
-  verifyLaunchParams(
+  async getUserData(token: string) {
+    let payload = this.jwtService.verify(token, PRIVATE_KEY)
+
+    if (!payload) {
+      throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN)
+    }
+
+    payload = payload.payload
+
+    const user = await this.userService.getUserByVkUserId(payload.userId)
+
+    return user
+  }
+
+  private verifyLaunchParams(
     searchOrParsedUrlQuery: string | ParsedUrlQuery,
     secretKey: string,
   ): boolean {
