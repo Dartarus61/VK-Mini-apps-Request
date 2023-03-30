@@ -69,7 +69,7 @@ export class CollectRequestService {
   async updateRequest(dto: UpdateRequestDTO) {
     const data = await this.verifyUserAndRequest(dto.token, dto.requestId);
 
-    if (!data[0].requests.includes(data[1])) {
+    if (data[0].id !== data[1].userId) {
       throw new HttpException('Access is not allowed', HttpStatus.FORBIDDEN);
     }
 
@@ -77,7 +77,14 @@ export class CollectRequestService {
       throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
     }
 
-    await data[1].update('title', dto.title);
+    await this.requestRepository.update(
+      { title: dto.title },
+      {
+        where: {
+          id: data[1].id,
+        },
+      },
+    );
 
     return await this.requestRepository.findByPk(dto.requestId);
   }
@@ -85,7 +92,7 @@ export class CollectRequestService {
   async deleteRequest(dto: DeleteRequestDTO) {
     const data = await this.verifyUserAndRequest(dto.token, dto.requestId);
 
-    if (!data[0].requests.includes(data[1])) {
+    if (data[0].id !== data[1].userId) {
       throw new HttpException('Access is not allowed', HttpStatus.FORBIDDEN);
     }
 
