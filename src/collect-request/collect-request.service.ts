@@ -93,6 +93,12 @@ export class CollectRequestService {
     return newSubscription;
   }
 
+  async getAllRequest(token: string) {
+    const user = await this.authService.getUserData(token);
+
+    return user.requests;
+  }
+
   async getCountOfLeeds(user: User) {
     let count = 0;
     Promise.all([

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Headers,
   Param,
   Post,
@@ -65,5 +66,10 @@ export class CollectRequestController {
     return this.collectRequestService.subOnRequest(
       new SubOnRequestDTO({ requestURI, uri }),
     );
+  }
+
+  @Get('/getAllRequestByUserId')
+  getAllRequestPerUser(@Headers('Authorization') authorization) {
+    const uri = authorization.split(' ')[1];
   }
 }
