@@ -63,6 +63,10 @@ export class AuthService {
 
     const user = await this.userService.getUserByVkUserId(payload.userId);
 
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
     return user;
   }
 

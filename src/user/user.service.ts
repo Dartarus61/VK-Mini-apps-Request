@@ -38,10 +38,6 @@ export class UserService {
       include: { all: true },
     });
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-
     return user;
   }
 }
