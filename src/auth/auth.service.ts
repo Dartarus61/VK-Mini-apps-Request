@@ -46,7 +46,7 @@ export class AuthService {
 
   private async generateToken(user: User) {
     const payload = {
-      id: user.userId,
+      userId: user.userId,
     };
     return {
       token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
@@ -60,19 +60,19 @@ export class AuthService {
       throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN);
     }
 
-    payload = payload.payload;
+    console.log(payload);
 
     const user = await this.userService.getUserByVkUserId(payload.userId);
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
 
     return user;
   }
 
   async whoAmI(token: string) {
     const user = await this.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     const requestsCount = user.requests.length;
 

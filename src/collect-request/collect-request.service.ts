@@ -21,6 +21,10 @@ export class CollectRequestService {
   async createRequest(dto: CreateRequestDTO) {
     const user = await this.authService.getUserData(dto.token);
 
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
     if (user.requests.length == 0) {
       const request = await user.$create('requests', dto.title);
 
@@ -72,6 +76,10 @@ export class CollectRequestService {
   async subOnRequest(dto: SubOnRequestDTO) {
     const user = await this.authService.getUserData(dto.token);
 
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
     const request = await this.requestRepository.findOne({
       where: { uri: dto.requestURI },
     });
@@ -94,6 +102,10 @@ export class CollectRequestService {
 
   async getAllRequest(token: string) {
     const user = await this.authService.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     return user.requests;
   }
@@ -119,6 +131,10 @@ export class CollectRequestService {
     requestId: number,
   ): Promise<[User, Request]> {
     const user = await this.authService.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     const request = await this.requestRepository.findByPk(requestId);
 

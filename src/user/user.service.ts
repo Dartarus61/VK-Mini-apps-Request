@@ -36,10 +36,6 @@ export class UserService {
       include: { all: true },
     });
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-
     return user;
   }
 
@@ -54,6 +50,10 @@ export class UserService {
 
   async editNotify(notify: boolean, token: string) {
     const user = await this.authService.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
 
     await user.update('notify', notify);
 
