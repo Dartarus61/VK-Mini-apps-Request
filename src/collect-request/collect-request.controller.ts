@@ -57,10 +57,10 @@ export class CollectRequestController {
     );
   }
 
-  @Post('/sub/:uri')
+  @Post('/sub/')
   subOnRequest(
     @Headers('Authorization') authorization,
-    @Param('uri') requestURI: string,
+    @Body('uri') requestURI: string,
   ) {
     const uri = authorization.split(' ')[1];
     return this.collectRequestService.subOnRequest(
