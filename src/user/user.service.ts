@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/models/user.model';
@@ -7,6 +13,7 @@ import { User } from 'src/models/user.model';
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
+    @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
   ) {}
 

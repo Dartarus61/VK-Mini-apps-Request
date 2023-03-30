@@ -15,7 +15,6 @@ export class CollectRequestService {
   constructor(
     @InjectModel(Request) private requestRepository: typeof Request,
     @InjectModel(Subcription) private subcriptionRepository: typeof Subcription,
-    private userService: UserService,
     private authService: AuthService,
   ) {}
 

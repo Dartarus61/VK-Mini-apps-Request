@@ -20,6 +20,7 @@ import { CollectRequestService } from 'src/collect-request/collect-request.servi
 export class AuthService {
   constructor(
     private jwtService: JwtService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
     @Inject(forwardRef(() => CollectRequestService))
     private requestsService: CollectRequestService,
