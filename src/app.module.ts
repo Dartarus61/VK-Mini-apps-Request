@@ -1,11 +1,16 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AuthModule } from './auth/auth.module';
 import { User } from './models/user.model';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 6,
+      limit: 10,
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST || 'localhost',
