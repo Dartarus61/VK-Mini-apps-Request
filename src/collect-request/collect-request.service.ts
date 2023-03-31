@@ -119,6 +119,14 @@ export class CollectRequestService {
       throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
     }
 
+    const candidate = await this.subcriptionRepository.findOne({where: {
+      requestId: request.id, userId: user.id
+    }})
+
+    if (candidate) {
+      throw new HttpException('User already subscribe on this event', HttpStatus.BAD_REQUEST)
+    }
+
     const newSubscription = await this.subcriptionRepository.create({
       requestId: request.id,
       userId: user.id,
