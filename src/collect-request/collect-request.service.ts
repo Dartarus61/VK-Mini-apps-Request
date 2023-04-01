@@ -158,7 +158,9 @@ export class CollectRequestService {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          `${VK_URL}messages.send?user_id=${user.userId}&message=${MESSAGE_TEXT(
+          `${VK_URL}messages.send?user_id=${user.userId}&random_id=${
+            user.userId
+          }&message=${MESSAGE_TEXT(
             `${username.first_name} ${username.last_name}`,
             user.userId,
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
