@@ -60,8 +60,6 @@ export class AuthService {
       throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN);
     }
 
-    console.log(payload);
-
     const user = await this.userService.getUserByVkUserId(payload.userId);
 
     return user;
