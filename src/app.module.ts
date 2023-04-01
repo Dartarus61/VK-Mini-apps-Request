@@ -7,6 +7,7 @@ import { CollectRequestModule } from './collect-request/collect-request.module';
 import { Request } from './models/request.model';
 import { Subcription } from './models/subcriptions.model';
 import { UserModule } from './user/user.module';
+import { VkEventModule } from './vk-event/vk-event.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     CollectRequestModule,
     UserModule,
+    VkEventModule,
   ],
 })
 export class AppModule {}
