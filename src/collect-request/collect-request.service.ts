@@ -163,6 +163,7 @@ export class CollectRequestService {
           }&message=${MESSAGE_TEXT(
             `${username.first_name} ${username.last_name}`,
             user.userId,
+            request.title,
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
         )
         .pipe(
