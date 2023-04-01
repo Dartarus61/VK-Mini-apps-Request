@@ -59,4 +59,25 @@ export class UserService {
 
     return this.userRepository.findByPk(user.id);
   }
+
+  async updatePrem(userId: number, flag: boolean) {
+    const user = await this.getUserByVkUserId(userId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    if (flag) {
+      let date = new Date();
+      date.setMonth(date.getMonth() + 1);
+      await this.userRepository.update(
+        { isPrem: flag, expiredPrem: date.toLocaleDateString() },
+        { where: { userId } },
+      );
+    } else {
+      await this.userRepository.update({ isPrem: flag }, { where: { userId } });
+    }
+
+    return 'ok';
+  }
 }

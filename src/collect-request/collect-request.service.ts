@@ -1,6 +1,12 @@
+import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { AxiosError } from 'axios';
+import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/auth.service';
+import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
+import { MESSAGE_TEXT } from 'src/core/constants';
 import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
 import { User } from 'src/models/user.model';
@@ -16,6 +22,7 @@ export class CollectRequestService {
     @InjectModel(Request) private requestRepository: typeof Request,
     @InjectModel(Subcription) private subcriptionRepository: typeof Subcription,
     private authService: AuthService,
+    private readonly httpService: HttpService,
   ) {}
 
   async createRequest(dto: CreateRequestDTO) {
@@ -119,18 +126,50 @@ export class CollectRequestService {
       throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
     }
 
-    const candidate = await this.subcriptionRepository.findOne({where: {
-      requestId: request.id, userId: user.id
-    }})
+    const candidate = await this.subcriptionRepository.findOne({
+      where: {
+        requestId: request.id,
+        userId: user.id,
+      },
+    });
 
     if (candidate) {
-      throw new HttpException('User already subscribe on this event', HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        'User already subscribe on this event',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const newSubscription = await this.subcriptionRepository.create({
       requestId: request.id,
       userId: user.id,
     });
+
+    const userData = await this.httpService.get(
+      `${VK_URL}users.get?user_ids=${174261333}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const username = (
+      await lastValueFrom(userData.pipe(map((res) => res.data)))
+    ).response[0];
+
+    console.log(username);
+
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post(
+          `${VK_URL}messages.send?user_id=${user.userId}&message=${MESSAGE_TEXT(
+            `${username.first_name} ${username.last_name}`,
+            user.userId,
+          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            console.log(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
 
     return newSubscription;
   }
@@ -159,6 +198,29 @@ export class CollectRequestService {
       }),
     ]);
     return count;
+  }
+
+  async changeVisabilityOfRequest(userId: number, flag: boolean) {
+    const updateRequest = (
+      await this.requestRepository.findAll({ where: { userId }, offset: 1 })
+    ).map((el) => {
+      return el.id;
+    });
+
+    if (!updateRequest) {
+      return;
+    }
+
+    await this.requestRepository.update(
+      { active: flag },
+      {
+        where: {
+          id: {
+            [Op.in]: updateRequest,
+          },
+        },
+      },
+    );
   }
 
   async verifyUserAndRequest(
