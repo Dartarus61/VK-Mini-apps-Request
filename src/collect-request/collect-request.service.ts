@@ -155,12 +155,23 @@ export class CollectRequestService {
 
     console.log(username);
 
+    console.log(
+      MESSAGE_TEXT(
+        `${username.first_name} ${username.last_name}`,
+        user.userId,
+        request.title,
+      ),
+    );
+
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          `${VK_URL}messages.send?user_id=${user.userId}&random_id=${
+          `${VK_URL}messages.send?user_id=${
             user.userId
-          }&message=${MESSAGE_TEXT(
+          }&random_id=${this.getRandomInt(
+            10000,
+            10000000,
+          )}&message=${MESSAGE_TEXT(
             `${username.first_name} ${username.last_name}`,
             user.userId,
             request.title,
@@ -243,5 +254,11 @@ export class CollectRequestService {
     }
 
     return [user, request];
+  }
+
+  getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
   }
 }
