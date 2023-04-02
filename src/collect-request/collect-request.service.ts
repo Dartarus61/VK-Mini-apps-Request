@@ -116,6 +116,7 @@ export class CollectRequestService {
 
     const request = await this.requestRepository.findOne({
       where: { uri: dto.requestURI },
+      include: [User],
     });
 
     if (!request) {
@@ -145,9 +146,9 @@ export class CollectRequestService {
       userId: user.id,
     });
 
-    if (user.notify) {
+    if (request.user.notify) {
       const userData = await this.httpService.get(
-        `${VK_URL}users.get?user_ids=${174261333}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        `${VK_URL}users.get?user_ids=${user.id}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
       );
 
       const username = (
