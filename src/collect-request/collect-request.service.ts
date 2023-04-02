@@ -150,7 +150,7 @@ export class CollectRequestService {
       console.log(123123);
 
       const userData = await this.httpService.get(
-        `${VK_URL}users.get?user_ids=${user.id}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
       );
 
       const username = (
