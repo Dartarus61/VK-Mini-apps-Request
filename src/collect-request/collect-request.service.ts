@@ -153,16 +153,6 @@ export class CollectRequestService {
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
 
-    console.log(username);
-
-    console.log(
-      MESSAGE_TEXT(
-        `${username.first_name} ${username.last_name}`,
-        user.userId,
-        request.title,
-      ),
-    );
-
     const { data } = await firstValueFrom(
       this.httpService
         .post(

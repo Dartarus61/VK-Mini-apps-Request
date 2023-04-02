@@ -71,5 +71,6 @@ export class CollectRequestController {
   @Get('/getAllRequestByUserId')
   getAllRequestPerUser(@Headers('Authorization') authorization) {
     const uri = authorization.split(' ')[1];
+    return this.collectRequestService.getAllRequest(uri);
   }
 }
