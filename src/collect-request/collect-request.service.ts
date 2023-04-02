@@ -145,35 +145,37 @@ export class CollectRequestService {
       userId: user.id,
     });
 
-    const userData = await this.httpService.get(
-      `${VK_URL}users.get?user_ids=${174261333}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    );
+    if (user.notify) {
+      const userData = await this.httpService.get(
+        `${VK_URL}users.get?user_ids=${174261333}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+      );
 
-    const username = (
-      await lastValueFrom(userData.pipe(map((res) => res.data)))
-    ).response[0];
+      const username = (
+        await lastValueFrom(userData.pipe(map((res) => res.data)))
+      ).response[0];
 
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(
-          `${VK_URL}messages.send?user_id=${
-            user.userId
-          }&random_id=${this.getRandomInt(
-            10000,
-            10000000,
-          )}&message=${MESSAGE_TEXT(
-            `${username.first_name} ${username.last_name}`,
-            user.userId,
-            request.title,
-          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-        )
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error.response.data);
-            throw 'An error happened!';
-          }),
-        ),
-    );
+      const { data } = await firstValueFrom(
+        this.httpService
+          .post(
+            `${VK_URL}messages.send?user_id=${
+              user.userId
+            }&random_id=${this.getRandomInt(
+              10000,
+              10000000,
+            )}&message=${MESSAGE_TEXT(
+              `${username.first_name} ${username.last_name}`,
+              user.userId,
+              request.title,
+            )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              console.log(error.response.data);
+              throw 'An error happened!';
+            }),
+          ),
+      );
+    }
 
     return newSubscription;
   }
