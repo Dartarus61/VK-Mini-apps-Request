@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -23,6 +24,9 @@ export class Subcription extends Model<Subcription> {
   @ForeignKey(() => User)
   @Column
   userId: number;
+
+  @BelongsTo(() => User)
+  user: User;
 
   @ForeignKey(() => Request)
   @Column

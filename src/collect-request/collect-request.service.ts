@@ -205,10 +205,14 @@ export class CollectRequestService {
   }
 
   async getSubsByRequestId(id: number) {
-    return this.subcriptionRepository.findAll({
-      attributes: ['userId'],
+    return await this.subcriptionRepository.findAll({
+      attributes: ['requestId'],
       where: {
         requestId: id,
+      },
+      include: {
+        model: User,
+        attributes: ['userId'],
       },
     });
   }
