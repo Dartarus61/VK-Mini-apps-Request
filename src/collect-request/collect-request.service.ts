@@ -116,7 +116,7 @@ export class CollectRequestService {
 
     const request = await this.requestRepository.findOne({
       where: { uri: dto.requestURI },
-      include: [User],
+      include: { model: User, as: 'user', attributes: ['notify'] },
     });
 
     if (!request) {
