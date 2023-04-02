@@ -74,7 +74,7 @@ export class AuthService {
 
     const requestsCount = user.requests.length;
 
-    const countOfLeed = await this.requestsService.getCountOfLeeds(user.userId);
+    const countOfLeed = await this.requestsService.getCountOfLeeds(user.id);
 
     const tempBodyOfUser = JSON.stringify(user, null, 2);
     const userObject = JSON.parse(tempBodyOfUser);
