@@ -116,7 +116,7 @@ export class CollectRequestService {
 
     const request = await this.requestRepository.findOne({
       where: { uri: dto.requestURI },
-      include: { model: User, as: 'user', attributes: ['notify'] },
+      include: { model: User, as: 'user' },
     });
 
     if (!request) {
@@ -146,8 +146,6 @@ export class CollectRequestService {
       userId: user.id,
     });
 
-    console.log(request);
-
     if (request.user.notify) {
       console.log(123123);
 
@@ -163,7 +161,7 @@ export class CollectRequestService {
         this.httpService
           .post(
             `${VK_URL}messages.send?user_id=${
-              user.userId
+              request.user.userId
             }&random_id=${this.getRandomInt(
               10000,
               10000000,
