@@ -55,7 +55,7 @@ export class UserService {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
 
-    await user.update('notify', notify);
+    await this.userRepository.update({ notify }, { where: { id: user.id } });
 
     return this.userRepository.findByPk(user.id);
   }
