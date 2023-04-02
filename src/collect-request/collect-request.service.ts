@@ -193,20 +193,18 @@ export class CollectRequestService {
     return user.requests;
   }
 
-  async getCountOfLeeds(user: User) {
-    let count = 0;
-    Promise.all([
-      user.requests.forEach(async (el) => {
-        count += (
-          await this.subcriptionRepository.findAndCountAll({
-            where: {
-              requestId: el.id,
-            },
-          })
-        ).count;
-      }),
-    ]);
-    return count;
+  async getCountOfLeeds(userId: number) {
+    return (
+      await this.subcriptionRepository.findAndCountAll({
+        include: {
+          model: Request,
+          as: 'request',
+          where: {
+            userId,
+          },
+        },
+      })
+    ).count;
   }
 
   async getSubsByRequestId(id: number) {

@@ -31,4 +31,7 @@ export class Subcription extends Model<Subcription> {
   @ForeignKey(() => Request)
   @Column
   requestId: number;
+
+  @BelongsTo(() => Request)
+  request: Request;
 }
