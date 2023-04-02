@@ -73,4 +73,9 @@ export class CollectRequestController {
     const uri = authorization.split(' ')[1];
     return this.collectRequestService.getAllRequest(uri);
   }
+
+  @Get('/sub/get/:id')
+  getSubsByRequestId(@Param('id') id: number) {
+    return this.collectRequestService.getSubsByRequestId(id);
+  }
 }

@@ -204,6 +204,15 @@ export class CollectRequestService {
     return count;
   }
 
+  async getSubsByRequestId(id: number) {
+    return this.subcriptionRepository.findAll({
+      attributes: ['userId'],
+      where: {
+        requestId: id,
+      },
+    });
+  }
+
   async changeVisabilityOfRequest(userId: number, flag: boolean) {
     const updateRequest = (
       await this.requestRepository.findAll({ where: { userId }, offset: 1 })
