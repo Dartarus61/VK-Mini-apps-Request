@@ -107,6 +107,20 @@ export class CollectRequestService {
     return 'successful';
   }
 
+  async getRequestByURI(uri: string) {
+    const request = await this.requestRepository.findOne({ where: { uri } });
+
+    if (!request) {
+      throw new HttpException('Request not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (!request.active) {
+      throw new HttpException('Request is not an active', HttpStatus.NOT_FOUND);
+    }
+
+    return request;
+  }
+
   async subOnRequest(dto: SubOnRequestDTO) {
     const user = await this.authService.getUserData(dto.token);
 

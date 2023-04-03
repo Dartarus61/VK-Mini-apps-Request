@@ -78,4 +78,9 @@ export class CollectRequestController {
   getSubsByRequestId(@Param('id') id: number) {
     return this.collectRequestService.getSubsByRequestId(id);
   }
+
+  @Get('/get/:uri')
+  getRequestByURI(@Param('uri') uri: string) {
+    return this.collectRequestService.getRequestByURI(uri);
+  }
 }
