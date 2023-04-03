@@ -235,26 +235,23 @@ export class CollectRequestService {
   }
 
   async changeVisabilityOfRequest(userId: number, flag: boolean) {
-    const updateRequest = (
-      await this.requestRepository.findAll({ where: { userId }, offset: 1 })
-    ).map((el) => {
-      return el.id;
-    });
-
-    if (!updateRequest) {
-      return;
-    }
-
-    await this.requestRepository.update(
-      { active: flag },
-      {
+    const requests = await this.requestRepository.findAll({
+      offset: 1,
+      include: {
+        model: User,
+        as: 'user',
         where: {
-          id: {
-            [Op.in]: updateRequest,
-          },
+          userId,
         },
       },
-    );
+    });
+
+    await Promise.all([
+      requests.forEach(async (el) => {
+        await el.update({ active: flag });
+        await el.save();
+      }),
+    ]);
   }
 
   async verifyUserAndRequest(
