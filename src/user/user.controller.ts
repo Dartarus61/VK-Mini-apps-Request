@@ -1,10 +1,12 @@
 import { Body, Controller, Headers, Put } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Throttle(5, 30)
   @Put('/editNotify')
   editNotify(
     @Body('notify') notify: boolean,

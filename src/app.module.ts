@@ -8,9 +8,15 @@ import { Request } from './models/request.model';
 import { Subcription } from './models/subcriptions.model';
 import { UserModule } from './user/user.module';
 import { VkEventModule } from './vk-event/vk-event.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST || 'localhost',

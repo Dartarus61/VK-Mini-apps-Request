@@ -1,6 +1,8 @@
 import { HttpModule } from '@nestjs/axios';
 import { forwardRef, Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthModule } from 'src/auth/auth.module';
 import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
@@ -9,7 +11,13 @@ import { CollectRequestService } from './collect-request.service';
 
 @Module({
   controllers: [CollectRequestController],
-  providers: [CollectRequestService],
+  providers: [
+    CollectRequestService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [CollectRequestService],
   imports: [
     SequelizeModule.forFeature([Request, Subcription]),

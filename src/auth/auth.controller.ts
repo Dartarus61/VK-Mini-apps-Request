@@ -6,10 +6,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { AuthenticationDTO } from './dto/authentication.dto';
 
 @ApiTags('auth')
+@SkipThrottle()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
