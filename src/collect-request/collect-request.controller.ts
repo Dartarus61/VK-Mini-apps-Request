@@ -23,6 +23,7 @@ export class CollectRequestController {
   constructor(private collectRequestService: CollectRequestService) {}
 
   @Post('/create')
+  @SkipThrottle(false)
   createRequest(
     @Body('title')
     title: string,
@@ -34,7 +35,6 @@ export class CollectRequestController {
     );
   }
 
-  @SkipThrottle(false)
   @Put('/update')
   updateRequest(
     @Body('title')
@@ -49,7 +49,6 @@ export class CollectRequestController {
     );
   }
 
-  @SkipThrottle(false)
   @Delete('/delete/:id')
   deleteRequest(
     @Param('id') requestId: number,
@@ -61,7 +60,6 @@ export class CollectRequestController {
     );
   }
 
-  @SkipThrottle(false)
   @Post('/sub/')
   subOnRequest(
     @Headers('Authorization') authorization,
@@ -73,20 +71,17 @@ export class CollectRequestController {
     );
   }
 
-  @SkipThrottle(false)
   @Get('/getAllRequestByUserId')
   getAllRequestPerUser(@Headers('Authorization') authorization) {
     const uri = authorization.split(' ')[1];
     return this.collectRequestService.getAllRequest(uri);
   }
 
-  @SkipThrottle(false)
   @Get('/sub/get/:id')
   getSubsByRequestId(@Param('id') id: number) {
     return this.collectRequestService.getSubsByRequestId(id);
   }
 
-  @SkipThrottle(false)
   @Get('/get/:uri')
   getRequestByURI(@Param('uri') uri: string) {
     return this.collectRequestService.getRequestByURI(uri);
