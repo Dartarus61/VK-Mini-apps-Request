@@ -161,8 +161,6 @@ export class CollectRequestService {
     });
 
     if (request.user.notify) {
-      console.log(123123);
-
       const userData = await this.httpService.get(
         `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
       );
@@ -170,6 +168,8 @@ export class CollectRequestService {
       const username = (
         await lastValueFrom(userData.pipe(map((res) => res.data)))
       ).response[0];
+
+      console.log(`try to send message to ${username.first_name}`);
 
       const { data } = await firstValueFrom(
         this.httpService
@@ -192,6 +192,7 @@ export class CollectRequestService {
             }),
           ),
       );
+      console.log(data);
     }
 
     return newSubscription;
