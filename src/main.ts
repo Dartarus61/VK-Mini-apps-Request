@@ -16,6 +16,7 @@ async function bootstrap() {
       'http://188.225.87.70:3000',
       'http://188.225.87.70:5000',
       new RegExp('vk-apps.com'),
+      new RegExp('.vercel.app'),
     ],
     credentials: true,
   });
