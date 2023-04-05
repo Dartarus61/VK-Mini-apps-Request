@@ -2,7 +2,7 @@ export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
   `❗Новая заявка 
   <br>
   <br>
-  @id${id} (${name}) оставил заявку по вашей ссылке ${title}» 
+  @id${id} (${name}) оставил заявку по вашей ссылке «${title}» 
   <br>
   <br>
   📝Написать клиенту: vk.me/id${id}
