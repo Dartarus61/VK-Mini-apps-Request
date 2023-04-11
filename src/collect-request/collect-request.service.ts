@@ -138,7 +138,11 @@ export class CollectRequestService {
       throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
     }
 
-    const author = this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
+    if (!request.active) {
+      throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
+    }
+
+    const author = this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&fields=blacklisted&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
     
     const authorType = (
       await lastValueFrom(author.pipe(map((res) => res.data)))
@@ -150,18 +154,21 @@ export class CollectRequestService {
           await this.requestRepository.update({active: false, banReason: 'Страница пользователя удалена'},{where: {
             userId: request.user.id
           }})
-          break;
+          throw new HttpException('Страница пользователя удалена',HttpStatus.FORBIDDEN)
         case 'banned':
           await this.requestRepository.update({active: false, banReason: 'Страница пользователя заблокирована'},{where: {
             userId: request.user.id
           }})
+          throw new HttpException('Страница пользователя заблокирована',HttpStatus.FORBIDDEN)
         default:
           break;
       }
     }
-
-    if (!request.active) {
-      throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
+    if (authorType.blacklisted==1) {
+      await this.requestRepository.update({active: false, banReason: 'Неактивная страница клиента'},{where: {
+        userId: request.user.id
+      }})
+      throw new HttpException('Неактивная страница клиента',HttpStatus.FORBIDDEN)
     }
 
     const candidate = await this.subcriptionRepository.findOne({
