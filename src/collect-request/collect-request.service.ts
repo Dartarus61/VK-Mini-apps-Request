@@ -138,6 +138,28 @@ export class CollectRequestService {
       throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
     }
 
+    const author = this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
+    
+    const authorType = (
+      await lastValueFrom(author.pipe(map((res) => res.data)))
+    ).response[0];      
+
+    if (authorType.deactivated) {
+      switch (authorType.deactivated) {
+        case 'deleted':
+          await this.requestRepository.update({active: false, banReason: 'Страница пользователя удалена'},{where: {
+            userId: request.user.id
+          }})
+          break;
+        case 'banned':
+          await this.requestRepository.update({active: false, banReason: 'Страница пользователя заблокирована'},{where: {
+            userId: request.user.id
+          }})
+        default:
+          break;
+      }
+    }
+
     if (!request.active) {
       throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
     }
@@ -162,20 +184,8 @@ export class CollectRequestService {
     });
 
     if (request.user.notify) {
-      const author = await this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
 
-      const authorType = (
-        await lastValueFrom(author.pipe(map((res) => res.data)))
-      ).response[0];
-
-      console.log(authorType);
       
-
-      if (!authorType.verified) {
-        await this.requestRepository.update({active: false, banReason: "Пользователь заблокирован"},{where: {
-          userId: request.user.id
-        }})
-      }
 
       const userData = await this.httpService.get(
         `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
