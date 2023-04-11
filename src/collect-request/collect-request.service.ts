@@ -15,6 +15,7 @@ import { CreateRequestDTO } from './dto/createRequest.dto';
 import { DeleteRequestDTO } from './dto/deleteRequest.dto';
 import { SubOnRequestDTO } from './dto/subOnRequest.dto';
 import { UpdateRequestDTO } from './dto/updateRequest.dto';
+import { log } from 'console';
 
 @Injectable()
 export class CollectRequestService {
@@ -161,6 +162,21 @@ export class CollectRequestService {
     });
 
     if (request.user.notify) {
+      const author = await this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
+
+      const authorType = (
+        await lastValueFrom(author.pipe(map((res) => res.data)))
+      ).response[0];
+
+      console.log(authorType);
+      
+
+      if (!authorType.verified) {
+        await this.requestRepository.update({active: false, banReason: "Пользователь заблокирован"},{where: {
+          userId: request.user.id
+        }})
+      }
+
       const userData = await this.httpService.get(
         `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
       );
@@ -235,7 +251,7 @@ export class CollectRequestService {
     });
   }
 
-  async changeVisabilityOfRequest(userId: number, flag: boolean) {
+  async changeVisabilityOfRequest(userId: number, flag: boolean,message: string) {
     const requests = await this.requestRepository.findAll({
       offset: 1,
       include: {
@@ -249,7 +265,7 @@ export class CollectRequestService {
 
     await Promise.all([
       requests.forEach(async (el) => {
-        await el.update({ active: flag });
+        await el.update({ active: flag, banReason: message });
         await el.save();
       }),
     ]);

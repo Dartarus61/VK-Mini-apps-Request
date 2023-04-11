@@ -34,6 +34,10 @@ export class Request extends Model<Request> {
   @Column({ type: DataType.BOOLEAN, defaultValue: true })
   active: boolean;
 
+  @ApiProperty({example: 'Неоплачена подписка', description: 'Причина бана'})
+  @Column({type: DataType.STRING, allowNull: true})
+  banReason: string
+
   @ApiProperty({ example: '3546345_1', description: 'URI заявки' })
   @Column({ type: DataType.STRING, allowNull: true })
   uri: string;

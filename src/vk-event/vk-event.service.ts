@@ -21,6 +21,7 @@ export class VkEventService {
         await this.requestService.changeVisabilityOfRequest(
           dto.object.user_id,
           true,
+          ''
         );
         return 'ok';
       case 'donut_subscription_prolonged':
@@ -28,6 +29,7 @@ export class VkEventService {
         await this.requestService.changeVisabilityOfRequest(
           dto.object.user_id,
           true,
+          ''
         );
         return 'ok';
       case 'donut_subscription_expired':
@@ -35,6 +37,7 @@ export class VkEventService {
         await this.requestService.changeVisabilityOfRequest(
           dto.object.user_id,
           false,
+          'Не оплачена подписка'
         );
         return 'ok';
       case 'donut_subscription_cancelled':
@@ -42,6 +45,7 @@ export class VkEventService {
         await this.requestService.changeVisabilityOfRequest(
           dto.object.user_id,
           false,
+          'Не оплачена подписка'
         );
         return 'ok';
       default:
