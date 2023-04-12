@@ -299,7 +299,7 @@ export class CollectRequestService {
           )
           .pipe(map((res) => res.data)),
       )
-    ).response[0];
+    ).response;
 
     console.log(mainURL);
 
