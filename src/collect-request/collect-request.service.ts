@@ -6,7 +6,12 @@ import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
 import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
-import { MESSAGE_TEXT } from 'src/core/constants';
+import {
+  CLAIM_TEXT,
+  GENA_ID,
+  KEYBOARD_FOR_CLAIM,
+  MESSAGE_TEXT,
+} from 'src/core/constants';
 import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
 import { User } from 'src/models/user.model';
@@ -142,33 +147,59 @@ export class CollectRequestService {
       throw new HttpException('Request is not active', HttpStatus.BAD_REQUEST);
     }
 
-    const author = this.httpService.get(`${VK_URL}users.get?user_ids=${request.user.userId}&fields=blacklisted&v=5.131&access_token=${GROUP_ACCESS_KEY}`)
-    
+    const author = this.httpService.get(
+      `${VK_URL}users.get?user_ids=${request.user.userId}&fields=blacklisted&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
     const authorType = (
       await lastValueFrom(author.pipe(map((res) => res.data)))
-    ).response[0];      
+    ).response[0];
 
     if (authorType.deactivated) {
       switch (authorType.deactivated) {
         case 'deleted':
-          await this.requestRepository.update({active: false, banReason: 'Страница пользователя удалена'},{where: {
-            userId: request.user.id
-          }})
-          throw new HttpException('Страница пользователя удалена',HttpStatus.FORBIDDEN)
+          await this.requestRepository.update(
+            { active: false, banReason: 'Страница пользователя удалена' },
+            {
+              where: {
+                userId: request.user.id,
+              },
+            },
+          );
+          throw new HttpException(
+            'Страница пользователя удалена',
+            HttpStatus.FORBIDDEN,
+          );
         case 'banned':
-          await this.requestRepository.update({active: false, banReason: 'Страница пользователя заблокирована'},{where: {
-            userId: request.user.id
-          }})
-          throw new HttpException('Страница пользователя заблокирована',HttpStatus.FORBIDDEN)
+          await this.requestRepository.update(
+            { active: false, banReason: 'Страница пользователя заблокирована' },
+            {
+              where: {
+                userId: request.user.id,
+              },
+            },
+          );
+          throw new HttpException(
+            'Страница пользователя заблокирована',
+            HttpStatus.FORBIDDEN,
+          );
         default:
           break;
       }
     }
-    if (authorType.blacklisted==1) {
-      await this.requestRepository.update({active: false, banReason: 'Неактивная страница клиента'},{where: {
-        userId: request.user.id
-      }})
-      throw new HttpException('Неактивная страница клиента',HttpStatus.FORBIDDEN)
+    if (authorType.blacklisted == 1) {
+      await this.requestRepository.update(
+        { active: false, banReason: 'Неактивная страница клиента' },
+        {
+          where: {
+            userId: request.user.id,
+          },
+        },
+      );
+      throw new HttpException(
+        'Неактивная страница клиента',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const candidate = await this.subcriptionRepository.findOne({
@@ -191,9 +222,6 @@ export class CollectRequestService {
     });
 
     if (request.user.notify) {
-
-      
-
       const userData = await this.httpService.get(
         `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
       );
@@ -268,7 +296,11 @@ export class CollectRequestService {
     });
   }
 
-  async changeVisabilityOfRequest(userId: number, flag: boolean,message: string) {
+  async changeVisabilityOfRequest(
+    userId: number,
+    flag: boolean,
+    message: string,
+  ) {
     const requests = await this.requestRepository.findAll({
       offset: 1,
       include: {
@@ -286,6 +318,42 @@ export class CollectRequestService {
         await el.save();
       }),
     ]);
+  }
+
+  async claim(token: string, url: string) {
+    const user = await this.authService.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const request = await this.requestRepository.findOne({
+      where: { uri: url },
+      include: { model: User, as: 'user' },
+    });
+
+    if (!request) {
+      throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const userData = await this.httpService.get(
+      `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const username = (
+      await lastValueFrom(userData.pipe(map((res) => res.data)))
+    ).response[0];
+
+    const newClaim = this.httpService.post(
+      `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
+        10000,
+        10000000,
+      )}&message=${CLAIM_TEXT(
+        `${username.first_name} ${username.last_name}`,
+        user.userId,
+        url,
+      )}&keyboard=${KEYBOARD_FOR_CLAIM}`,
+    );
   }
 
   async verifyUserAndRequest(

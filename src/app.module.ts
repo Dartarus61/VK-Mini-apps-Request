@@ -33,7 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
         idle: 300000,
         acquire: 300000,
       },
-      /* sync: { force: true }, */
+      sync: { alter: true },
       /* dialectOptions:{
         ssl:{
             require: true,

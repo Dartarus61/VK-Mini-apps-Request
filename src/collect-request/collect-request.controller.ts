@@ -86,4 +86,13 @@ export class CollectRequestController {
   getRequestByURI(@Param('uri') uri: string) {
     return this.collectRequestService.getRequestByURI(uri);
   }
+
+  @Post('/claim')
+  claimRequest(
+    @Headers('Authorization') authorization,
+    @Body('uri') url: string,
+  ) {
+    const uri = authorization.split(' ')[1];
+    return this.collectRequestService.claim(uri, url);
+  }
 }
