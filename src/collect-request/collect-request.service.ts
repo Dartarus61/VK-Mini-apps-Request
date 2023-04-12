@@ -352,8 +352,10 @@ export class CollectRequestService {
         `${username.first_name} ${username.last_name}`,
         user.userId,
         url,
-      )}&keyboard=${KEYBOARD_FOR_CLAIM}`,
+      )}&keyboard=${KEYBOARD_FOR_CLAIM}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
     );
+
+    return 'successful';
   }
 
   async verifyUserAndRequest(
