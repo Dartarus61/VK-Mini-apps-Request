@@ -15,6 +15,7 @@ export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
   `Жалоба на данную заявку
     <br>
     От @id${id} (${name})
+    id заявки = ${uri}
     <br>
     <br>
     Проверить, при наличии нарушении заблокировать
@@ -28,13 +29,6 @@ export const KEYBOARD_FOR_CLAIM = {
         type: 'callback',
         label: 'Заблокировать',
         payload: '{uri:333}',
-      },
-    },
-    {
-      action: {
-        type: 'open_link',
-        link: `vk.com/app51586799#uri`,
-        label: 'Заявка',
       },
     },
   ],

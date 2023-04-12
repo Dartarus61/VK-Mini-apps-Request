@@ -299,9 +299,9 @@ export class CollectRequestService {
           }&random_id=${this.getRandomInt(
             10000,
             10000000,
-          )}&message=Жалоба на данную заявку <a href="vk.com/vk.com/app51586799${url}" target="_blank">заявка</a><br>От @id${
-            user.userId
-          } (${username.first_name} ${
+          )}&message=Жалоба на данную заявку<br>От @id${user.userId} (${
+            username.first_name
+          } ${
             username.last_name
           })<br><br>Проверить, при наличии нарушении заблокировать&keyboard=${JSON.stringify(
             KEYBOARD_FOR_CLAIM,
