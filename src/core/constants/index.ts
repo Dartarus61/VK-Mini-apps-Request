@@ -29,7 +29,7 @@ export const KEYBOARD_FOR_CLAIM = {
         action: {
           type: 'callback',
           label: 'Заблокировать',
-          payload: '{uri:333}',
+          payload: { uri: 333 },
         },
       },
     ],
