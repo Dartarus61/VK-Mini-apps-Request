@@ -121,7 +121,7 @@ export class CollectRequestService {
     }
 
     if (!request.active) {
-      throw new HttpException('Request is not an active', HttpStatus.NOT_FOUND);
+      throw new HttpException(request.banReason, HttpStatus.NOT_FOUND);
     }
 
     return request;
