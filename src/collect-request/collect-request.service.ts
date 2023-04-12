@@ -286,14 +286,14 @@ export class CollectRequestService {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
+          `${VK_URL}messages.send?user_id=${
+            request.user.userId
+          }&random_id=${this.getRandomInt(
             10000,
             10000000,
-          )}&message=${CLAIM_TEXT(
-            `${username.first_name} ${username.last_name}`,
-            user.userId,
-            url,
-          )}&keyboard=${KEYBOARD_FOR_CLAIM}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+          )}&message=bbb&keyboard=${JSON.stringify(
+            KEYBOARD_FOR_CLAIM,
+          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
         )
         .pipe(
           catchError((error: AxiosError) => {
