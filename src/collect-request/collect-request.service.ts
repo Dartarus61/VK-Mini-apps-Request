@@ -315,6 +315,7 @@ export class CollectRequestService {
         ),
     );
     console.log(data);
+    console.log(data.error.request_params);
 
     return 'successful';
   }
