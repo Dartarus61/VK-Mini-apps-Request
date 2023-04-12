@@ -283,6 +283,14 @@ export class CollectRequestService {
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
 
+    console.log(
+      CLAIM_TEXT(
+        `${username.first_name} ${username.last_name})`,
+        user.userId,
+        url,
+      ),
+    );
+
     const { data } = await firstValueFrom(
       this.httpService
         .post(
@@ -291,8 +299,12 @@ export class CollectRequestService {
           }&random_id=${this.getRandomInt(
             10000,
             10000000,
-          )}&message=bbb&keyboard=${JSON.stringify(
-            KEYBOARD_FOR_CLAIM,
+          )}&message=${CLAIM_TEXT(
+            `${username.first_name} ${username.last_name})`,
+            user.userId,
+            url,
+          )}&keyboard=${JSON.stringify(
+            KEYBOARD_FOR_CLAIM(url),
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
         )
         .pipe(
