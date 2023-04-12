@@ -15,6 +15,7 @@ export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
   `Жалоба на данную заявку
     <br>
     От @id${id} (${name})
+    <br>
     id заявки = ${uri}
     <br>
     <br>
