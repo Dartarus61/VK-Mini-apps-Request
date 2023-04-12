@@ -20,24 +20,22 @@ export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
     Проверить, при наличии нарушении заблокировать
     `;
 
-export const KEYBOARD_FOR_CLAIM = (uri: string) => {
-  return {
-    inline: true,
-    buttons: [
-      {
-        action: {
-          type: 'callback',
-          label: 'Заблокировать',
-          payload: '{uri:333}',
-        },
+export const KEYBOARD_FOR_CLAIM = {
+  inline: true,
+  buttons: [
+    {
+      action: {
+        type: 'callback',
+        label: 'Заблокировать',
+        payload: '{uri:333}',
       },
-      {
-        action: {
-          type: 'open_link',
-          link: `vk.com/app51586799#${uri}`,
-          label: 'Заявка',
-        },
+    },
+    {
+      action: {
+        type: 'open_link',
+        link: `vk.com/app51586799#uri`,
+        label: 'Заявка',
       },
-    ],
-  };
+    },
+  ],
 };
