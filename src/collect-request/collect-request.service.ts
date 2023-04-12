@@ -299,12 +299,11 @@ export class CollectRequestService {
           }&random_id=${this.getRandomInt(
             10000,
             10000000,
-          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=Жалоба на данную заявку<br>От @id${
-            user.userId
-          } (${username.first_name} ${username.last_name})<br><br>
-    id заявки: ${url}<br>Проверить, при наличии нарушении заблокировать&keyboard=${JSON.stringify(
-            KEYBOARD_FOR_CLAIM(url),
-          )}`,
+          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
+            `${username.first_name} ${username.last_name})`,
+            user.userId,
+            url,
+          )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
         )
         .pipe(
           catchError((error: AxiosError) => {
