@@ -9,6 +9,7 @@ export class RequestCBDTO {
 class UserObject {
   readonly user_id: number;
   readonly join_type: string;
+  readonly event_id: string;
   readonly peer_id: number;
   readonly payload: {
     uri: string;

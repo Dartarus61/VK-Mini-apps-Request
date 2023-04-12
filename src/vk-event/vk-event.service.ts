@@ -59,7 +59,7 @@ export class VkEventService {
           this.httpService
             .post(
               `${VK_URL}messages.sendMessageEventAnswer?event_id=${
-                dto.event_id
+                dto.object.event_id
               }&user_id=${dto.object.user_id}&peer_id=${
                 dto.object.peer_id
               }&event_data=${JSON.stringify({
