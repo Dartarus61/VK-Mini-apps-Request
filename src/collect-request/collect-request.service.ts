@@ -305,7 +305,7 @@ export class CollectRequestService {
     <br>
     <br>
     Проверить, при наличии нарушении заблокировать&keyboard=${JSON.stringify(
-      KEYBOARD_FOR_CLAIM(url),
+      KEYBOARD_FOR_CLAIM,
     )}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
         )
         .pipe(
