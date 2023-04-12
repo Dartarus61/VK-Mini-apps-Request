@@ -58,7 +58,7 @@ export class VkEventService {
         const { data } = await firstValueFrom(
           this.httpService
             .post(
-              `${VK_URL}sendMessageEventAnswer?event_id=${
+              `${VK_URL}messages.sendMessageEventAnswer?event_id=${
                 dto.event_id
               }&user_id=${dto.object.user_id}&peer_id=${
                 dto.object.peer_id
