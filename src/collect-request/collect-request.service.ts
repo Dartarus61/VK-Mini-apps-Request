@@ -291,6 +291,18 @@ export class CollectRequestService {
       ),
     );
 
+    const mainURL = (
+      await lastValueFrom(
+        this.httpService
+          .get(
+            `${VK_URL}utils.getShortLinkt?url=vk.com/app51586799#${url}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+          )
+          .pipe(map((res) => res.data)),
+      )
+    ).response[0];
+
+    console.log(mainURL);
+
     const { data } = await firstValueFrom(
       this.httpService
         .post(
@@ -302,7 +314,7 @@ export class CollectRequestService {
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
             `${username.first_name} ${username.last_name})`,
             user.userId,
-            url,
+            mainURL,
           )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
         )
         .pipe(
