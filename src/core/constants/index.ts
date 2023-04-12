@@ -12,7 +12,7 @@ export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
   💡 Ответьте как можно скорее, ведь от скорости зависит ваша конверсия`;
 
 export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
-  `Жалоба на данную заявку
+  `Жалоба на данную заявку: vk.com/app51586799#${uri}
     <br>
     От @id${id} (${name})
     <br>
