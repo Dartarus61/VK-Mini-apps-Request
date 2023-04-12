@@ -315,7 +315,6 @@ export class CollectRequestService {
         ),
     );
     console.log(data);
-    console.log(data.error.request_params);
 
     return 'successful';
   }
@@ -379,6 +378,17 @@ export class CollectRequestService {
         await el.save();
       }),
     ]);
+  }
+
+  async banRequest(uri: string) {
+    await this.requestRepository.update(
+      { active: false, banReason: 'Заблокирована модерацией' },
+      {
+        where: {
+          uri,
+        },
+      },
+    );
   }
 
   async verifyUserAndRequest(
