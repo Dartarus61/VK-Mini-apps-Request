@@ -304,7 +304,7 @@ export class CollectRequestService {
           } (${username.first_name} ${
             username.last_name
           })<br><br>Проверить, при наличии нарушении заблокировать&keyboard=${JSON.stringify(
-            KEYBOARD_FOR_CLAIM,
+            KEYBOARD_FOR_CLAIM(url),
           )}`,
         )
         .pipe(
