@@ -22,7 +22,6 @@ export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
 
 export const KEYBOARD_FOR_CLAIM = (uri: string) => {
   return {
-    one_time: true,
     inline: true,
     buttons: [
       {
