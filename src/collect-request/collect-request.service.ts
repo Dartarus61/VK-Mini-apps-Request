@@ -259,6 +259,54 @@ export class CollectRequestService {
     return newSubscription;
   }
 
+  async claim(token: string, url: string) {
+    const user = await this.authService.getUserData(token);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const request = await this.requestRepository.findOne({
+      where: { uri: url },
+      include: { model: User, as: 'user' },
+    });
+
+    if (!request) {
+      throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
+    }
+
+    const userData = await this.httpService.get(
+      `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const username = (
+      await lastValueFrom(userData.pipe(map((res) => res.data)))
+    ).response[0];
+
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post(
+          `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
+            10000,
+            10000000,
+          )}&message=${CLAIM_TEXT(
+            `${username.first_name} ${username.last_name}`,
+            user.userId,
+            url,
+          )}&keyboard=${KEYBOARD_FOR_CLAIM}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            console.log(error.response.data);
+            throw 'An error happened!';
+          }),
+        ),
+    );
+    console.log(data);
+
+    return 'successful';
+  }
+
   async getAllRequest(token: string) {
     const user = await this.authService.getUserData(token);
 
@@ -318,44 +366,6 @@ export class CollectRequestService {
         await el.save();
       }),
     ]);
-  }
-
-  async claim(token: string, url: string) {
-    const user = await this.authService.getUserData(token);
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-
-    const request = await this.requestRepository.findOne({
-      where: { uri: url },
-      include: { model: User, as: 'user' },
-    });
-
-    if (!request) {
-      throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
-    }
-
-    const userData = await this.httpService.get(
-      `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    );
-
-    const username = (
-      await lastValueFrom(userData.pipe(map((res) => res.data)))
-    ).response[0];
-
-    const newClaim = this.httpService.post(
-      `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
-        10000,
-        10000000,
-      )}&message=${CLAIM_TEXT(
-        `${username.first_name} ${username.last_name}`,
-        user.userId,
-        url,
-      )}&keyboard=${KEYBOARD_FOR_CLAIM}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    );
-
-    return 'successful';
   }
 
   async verifyUserAndRequest(
