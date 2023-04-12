@@ -16,7 +16,7 @@ export const CLAIM_TEXT = (name: string, id: number, uri: string) =>
     <br>
     От @id${id} (${name})
     <br>
-    id заявки = ${uri}
+    id заявки: ${uri}
     <br>
     <br>
     Проверить, при наличии нарушении заблокировать
