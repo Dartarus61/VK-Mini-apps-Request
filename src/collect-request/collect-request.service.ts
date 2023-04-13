@@ -282,9 +282,7 @@ export class CollectRequestService {
     const { data } = await firstValueFrom(
       this.httpService
         .post(
-          `${VK_URL}messages.send?user_id=${
-            request.user.userId
-          }&random_id=${this.getRandomInt(
+          `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
             10000,
             10000000,
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
