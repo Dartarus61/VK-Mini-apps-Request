@@ -1,4 +1,4 @@
-export const GENA_ID = 174261333;
+export const GENA_ID = 282952551;
 
 export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
   `❗Новая заявка 
