@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
@@ -279,25 +279,7 @@ export class CollectRequestService {
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
 
-    await axios
-      .post(
-        `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
-          10000,
-          10000000,
-        )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
-          `${username.first_name} ${username.last_name}`,
-          user.userId,
-          url,
-        )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
-      )
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-    /* const { data } = await firstValueFrom(
+    const { data } = await firstValueFrom(
       this.httpService
         .post(
           `${VK_URL}messages.send?user_id=${GENA_ID}&random_id=${this.getRandomInt(
@@ -315,8 +297,8 @@ export class CollectRequestService {
             throw 'An error happened!';
           }),
         ),
-    ); 
-    console.log(data);*/
+    );
+    console.log(data);
 
     return 'successful';
   }
