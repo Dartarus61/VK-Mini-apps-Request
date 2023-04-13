@@ -91,9 +91,8 @@ export class CollectRequestController {
   claimRequest(
     @Headers('Authorization') authorization,
     @Body('uri') uri: string,
-    @Body('short_url') short_url: string,
   ) {
     const token = authorization.split(' ')[1];
-    return this.collectRequestService.claim(token, uri, short_url);
+    return this.collectRequestService.claim(token, uri);
   }
 }

@@ -255,7 +255,7 @@ export class CollectRequestService {
     return newSubscription;
   }
 
-  async claim(token: string, url: string, short_url: string) {
+  async claim(token: string, url: string) {
     const user = await this.authService.getUserData(token);
 
     if (!user) {
@@ -288,7 +288,7 @@ export class CollectRequestService {
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
             `${username.first_name} ${username.last_name}`,
             user.userId,
-            short_url,
+            url,
           )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
         )
         .pipe(
