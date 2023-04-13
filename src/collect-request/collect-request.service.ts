@@ -287,7 +287,7 @@ export class CollectRequestService {
         )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
           `${username.first_name} ${username.last_name}`,
           user.userId,
-          short_url,
+          url,
         )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
       )
       .then(function (response) {
