@@ -288,7 +288,7 @@ export class CollectRequestService {
     );
 
     const rawURL = this.httpService.get(
-      `${VK_URL}utils.getShortLinkt?v=5.131&access_token=${GROUP_ACCESS_KEY}&url=vk.com/app51586799#${url}`,
+      `${VK_URL}utils.getShortLink?v=5.131&access_token=${GROUP_ACCESS_KEY}&url=vk.com/app51586799#${url}`,
     );
 
     const mainURL = await lastValueFrom(rawURL.pipe(map((res) => res.data)));
