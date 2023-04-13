@@ -3,7 +3,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
-import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
 import {
@@ -15,13 +14,10 @@ import {
 import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
 import { User } from 'src/models/user.model';
-import { UserService } from 'src/user/user.service';
 import { CreateRequestDTO } from './dto/createRequest.dto';
 import { DeleteRequestDTO } from './dto/deleteRequest.dto';
 import { SubOnRequestDTO } from './dto/subOnRequest.dto';
 import { UpdateRequestDTO } from './dto/updateRequest.dto';
-import { log } from 'console';
-
 @Injectable()
 export class CollectRequestService {
   constructor(
@@ -291,15 +287,11 @@ export class CollectRequestService {
       ),
     );
 
-    const mainURL = (
-      await lastValueFrom(
-        this.httpService
-          .get(
-            `${VK_URL}utils.getShortLinkt?url=vk.com/app51586799#${url}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-          )
-          .pipe(map((res) => res.data)),
-      )
-    ).response;
+    const rawURL = this.httpService.get(
+      `${VK_URL}utils.getShortLinkt?url=vk.com/app51586799#${url}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const mainURL = await lastValueFrom(rawURL.pipe(map((res) => res.data)));
 
     console.log(mainURL);
 
