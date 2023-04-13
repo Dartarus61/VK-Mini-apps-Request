@@ -90,9 +90,10 @@ export class CollectRequestController {
   @Post('/claim')
   claimRequest(
     @Headers('Authorization') authorization,
-    @Body('uri') url: string,
+    @Body('uri') uri: string,
+    @Body('short_url') short_url: string,
   ) {
-    const uri = authorization.split(' ')[1];
-    return this.collectRequestService.claim(uri, url);
+    const token = authorization.split(' ')[1];
+    return this.collectRequestService.claim(token, uri, short_url);
   }
 }

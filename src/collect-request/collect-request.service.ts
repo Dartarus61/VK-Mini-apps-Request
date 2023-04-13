@@ -255,7 +255,7 @@ export class CollectRequestService {
     return newSubscription;
   }
 
-  async claim(token: string, url: string) {
+  async claim(token: string, url: string, short_url: string) {
     const user = await this.authService.getUserData(token);
 
     if (!user) {
@@ -279,22 +279,6 @@ export class CollectRequestService {
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
 
-    console.log(
-      CLAIM_TEXT(
-        `${username.first_name} ${username.last_name})`,
-        user.userId,
-        url,
-      ),
-    );
-
-    const rawURL = this.httpService.get(
-      `${VK_URL}utils.getShortLink?v=5.131&access_token=${GROUP_ACCESS_KEY}&url=vk.com/app51586799#${url}`,
-    );
-
-    const mainURL = await lastValueFrom(rawURL.pipe(map((res) => res.data)));
-
-    console.log(mainURL);
-
     const { data } = await firstValueFrom(
       this.httpService
         .post(
@@ -306,7 +290,7 @@ export class CollectRequestService {
           )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
             `${username.first_name} ${username.last_name})`,
             user.userId,
-            mainURL,
+            short_url,
           )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
         )
         .pipe(
