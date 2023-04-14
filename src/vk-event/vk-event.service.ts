@@ -64,7 +64,7 @@ export class VkEventService {
                 dto.object.peer_id
               }&event_data=${JSON.stringify({
                 type: 'show_snackbar',
-                text: 'Покажи исчезающее сообщение на экране',
+                text: 'Завка была заблокирована.',
               })}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
             )
             .pipe(

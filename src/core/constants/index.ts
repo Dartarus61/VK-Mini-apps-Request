@@ -1,4 +1,4 @@
-export const GENA_ID = 198102305;
+export const GENA_ID = 282952551;
 
 export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
   `❗Новая заявка 
@@ -13,7 +13,9 @@ export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
 
 export const CLAIM_TEXT = (name: string, id: number, url: string) => encodeURIComponent(
   `Жалоба на данную заявку: vk.com/app51586799#${url}
+
     От @id${id} (${name})
+    
     Проверить, при наличии нарушении заблокировать
     `);
 
