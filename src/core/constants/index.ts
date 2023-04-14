@@ -13,10 +13,7 @@ export const MESSAGE_TEXT = (name: string, id: number, title: string) =>
 
 export const CLAIM_TEXT = (name: string, id: number, url: string) => encodeURIComponent(
   `Жалоба на данную заявку: vk.com/app51586799#${url}
-    <br>
     От @id${id} (${name})
-    <br>
-    <br>
     Проверить, при наличии нарушении заблокировать
     `);
 
