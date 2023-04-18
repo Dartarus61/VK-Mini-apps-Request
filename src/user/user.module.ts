@@ -6,6 +6,7 @@ import { UserController } from './user.controller';
 import { AuthModule } from 'src/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   providers: [
@@ -16,7 +17,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     },
   ],
   exports: [UserService],
-  imports: [SequelizeModule.forFeature([User]), forwardRef(() => AuthModule)],
+  imports: [SequelizeModule.forFeature([User]), forwardRef(() => AuthModule), HttpModule],
   controllers: [UserController],
 })
 export class UserModule {}

@@ -1,3 +1,4 @@
+import { HttpService } from '@nestjs/axios';
 import {
   forwardRef,
   HttpException,
@@ -7,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AuthService } from 'src/auth/auth.service';
+import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
+import { GROUP_ID } from 'src/core/constants';
 import { User } from 'src/models/user.model';
 
 @Injectable()
@@ -15,6 +18,7 @@ export class UserService {
     @InjectModel(User) private userRepository: typeof User,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
+    private readonly httpService: HttpService
   ) {}
 
   async createUser(userId: number) {
@@ -56,6 +60,10 @@ export class UserService {
     }
 
     await this.userRepository.update({ notify }, { where: { id: user.id } });
+
+    this.httpService.get(
+      `${VK_URL}messages.denyMessagesFromGroup?group_id=${GROUP_ID}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    )
 
     return this.userRepository.findByPk(user.id);
   }

@@ -1,4 +1,5 @@
 export const GENA_ID = 282952551;
+export const GROUP_ID = 219481464;
 
 export const MESSAGE_TEXT = (name: string, id: number, title: string) => encodeURIComponent(
   `❗Новая заявка 
