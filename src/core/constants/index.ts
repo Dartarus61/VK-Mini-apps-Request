@@ -1,4 +1,4 @@
-export const GENA_ID = 282952551;
+export const GENA_ID = '282952551,765917456,172272059,758116042';
 export const GROUP_ID = 219481464;
 
 export const MESSAGE_TEXT = (name: string, id: number, title: string) => encodeURIComponent(
