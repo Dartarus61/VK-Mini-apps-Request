@@ -3,6 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
 import {
@@ -347,6 +348,11 @@ export class CollectRequestService {
   ) {
     const requests = await this.requestRepository.findAll({
       offset: 1,
+      where: {
+        banReason: {
+          [Op.ne]: 'Заблокирована модерацией',
+        },
+      },
       include: {
         model: User,
         as: 'user',
