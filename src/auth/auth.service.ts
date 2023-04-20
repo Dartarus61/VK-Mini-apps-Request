@@ -51,9 +51,9 @@ export class AuthService {
       user = await this.userService.createUser(dto.userId);
     }
 
-    const token = await this.generateToken(user);
+    //const token = await this.generateToken(user);
 
-    return token;
+    return 'successful';
   }
 
   private async generateToken(user: User) {
@@ -89,7 +89,10 @@ export class AuthService {
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
-      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'URI is invalid while get user data',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const user = await this.userService.getUserByVkUserId(
