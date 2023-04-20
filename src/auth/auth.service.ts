@@ -26,17 +26,17 @@ export class AuthService {
     private requestsService: CollectRequestService,
   ) {}
 
-  async signUpIn(dto: AuthenticationDTO) {
-    const verifyUser = this.verifyLaunchParams(dto.uri, PRIVATE_KEY);
+  async signUpIn(token: string) {
+    const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
       throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
     }
 
-    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(dto.uri));
+    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(token));
 
     if (!user) {
-      user = await this.userService.createUser(this.getUserIdFromURI(dto.uri));
+      user = await this.userService.createUser(this.getUserIdFromURI(token));
     }
 
     return 'successul';

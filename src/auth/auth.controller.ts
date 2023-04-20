@@ -21,12 +21,12 @@ export class AuthController {
   @ApiResponse({ status: 200 })
   @Post('/signUpIn')
   signUpIn(
-    @Body('userId')
-    userId: number,
     @Headers('Authorization') authorization,
   ) {
+    console.log(authorization);
+    
     const uri = authorization.split(' ')[1];
-    return this.authService.signUpIn(new AuthenticationDTO({ userId, uri }));
+    return this.authService.signUpIn(uri);
   }
 
   @UseGuards(JwtAuthGuard)
