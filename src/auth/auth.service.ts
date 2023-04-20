@@ -30,7 +30,19 @@ export class AuthService {
     const verifyUser = this.verifyLaunchParams(dto.uri, PRIVATE_KEY);
 
     if (!verifyUser) {
-      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'URI is invalid while signUpIn',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const userId = this.getUserIdFromURI(dto.uri);
+
+    if (userId !== dto.userId) {
+      throw new HttpException(
+        'User ID is not an equal',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     let user = await this.userService.getUserByVkUserId(dto.userId);
@@ -53,14 +65,36 @@ export class AuthService {
     };
   }
 
-  async getUserData(token: string) {
-    let payload = this.jwtService.verify(token, { secret: PRIVATE_KEY });
+  verifyUserId(token: string) {
+    return this.verifyLaunchParams(token, PRIVATE_KEY);
+  }
 
-    if (!payload) {
-      throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN);
+  getUserIdFromURI(token: string) {
+    let tokenUserId = token.match('/vk_user_id=d{4,}/gm');
+
+    if (tokenUserId == null) {
+      throw new HttpException(
+        'URI is invalid while get user from uri',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const user = await this.userService.getUserByVkUserId(payload.userId);
+    const userId = tokenUserId[0].split('=')[1];
+    console.log(+userId);
+
+    return +userId;
+  }
+
+  async getUserData(token: string) {
+    const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
+
+    if (!verifyUser) {
+      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
+    }
+
+    const user = await this.userService.getUserByVkUserId(
+      this.getUserIdFromURI(token),
+    );
 
     return user;
   }
