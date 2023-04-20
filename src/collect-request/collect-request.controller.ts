@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -15,6 +16,7 @@ import { CreateRequestDTO } from './dto/createRequest.dto';
 import { DeleteRequestDTO } from './dto/deleteRequest.dto';
 import { SubOnRequestDTO } from './dto/subOnRequest.dto';
 import { UpdateRequestDTO } from './dto/updateRequest.dto';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @ApiTags('Request')
 @SkipThrottle()
@@ -24,6 +26,7 @@ export class CollectRequestController {
 
   @Post('/create')
   @SkipThrottle(false)
+  @UseGuards(JwtAuthGuard)
   createRequest(
     @Body('title')
     title: string,
@@ -35,6 +38,7 @@ export class CollectRequestController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('/update')
   updateRequest(
     @Body('title')
@@ -49,6 +53,7 @@ export class CollectRequestController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/delete/:id')
   deleteRequest(
     @Param('id') requestId: number,
@@ -60,6 +65,7 @@ export class CollectRequestController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/sub/')
   subOnRequest(
     @Headers('Authorization') authorization,
@@ -71,22 +77,26 @@ export class CollectRequestController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/getAllRequestByUserId')
   getAllRequestPerUser(@Headers('Authorization') authorization) {
     const uri = authorization.split(' ')[1];
     return this.collectRequestService.getAllRequest(uri);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/sub/get/:id')
   getSubsByRequestId(@Param('id') id: number) {
     return this.collectRequestService.getSubsByRequestId(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/get/:uri')
   getRequestByURI(@Param('uri') uri: string) {
     return this.collectRequestService.getRequestByURI(uri);
   }
 
+  @UseGuards(JwtAuthGuard)  
   @Post('/claim')
   claimRequest(
     @Headers('Authorization') authorization,

@@ -33,20 +33,21 @@ export class AuthService {
       throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
     }
 
-    let user = await this.userService.getUserByVkUserId(dto.userId);
+    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(dto.uri));
 
     if (!user) {
-      user = await this.userService.createUser(dto.userId);
+      user = await this.userService.createUser(this.getUserIdFromURI(dto.uri));
     }
 
-    const token = await this.generateToken(user);
+    const token = await this.generateToken(user, dto.uri);
 
     return token;
   }
-
-  private async generateToken(user: User) {
+ //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
+  private async generateToken(user: User, token: string) {
     const payload = {
       userId: user.userId,
+      token 
     };
     return {
       token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
@@ -54,13 +55,14 @@ export class AuthService {
   }
 
   async getUserData(token: string) {
-    let payload = this.jwtService.verify(token, { secret: PRIVATE_KEY });
 
-    if (!payload) {
-      throw new HttpException('Token is invalid', HttpStatus.FORBIDDEN);
+    const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
+
+    if (!verifyUser) {
+      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
     }
 
-    const user = await this.userService.getUserByVkUserId(payload.userId);
+    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(token));
 
     return user;
   }
@@ -86,6 +88,22 @@ export class AuthService {
     };
 
     return finalObject;
+  }
+
+  verifyUserId(token: string) {
+    return this.verifyLaunchParams(token, PRIVATE_KEY)
+  }
+
+  getUserIdFromURI(token: string) {
+    let tokenUserId = token.match('/vk_user_id=\d{4,}/gm')
+
+    if (tokenUserId == null){
+      throw new HttpException('URI is invalid', HttpStatus.BAD_REQUEST)
+    }
+
+    const userId = tokenUserId[0].split('=')[1]
+
+    return +userId
   }
 
   private verifyLaunchParams(

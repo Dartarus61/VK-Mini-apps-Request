@@ -1,12 +1,14 @@
-import { Body, Controller, Headers, Put } from '@nestjs/common';
+import { Body, Controller, Headers, Put, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { UserService } from './user.service';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Throttle(5, 30)
+  @UseGuards(JwtAuthGuard)
   @Put('/editNotify')
   editNotify(
     @Body('notify') notify: boolean,
