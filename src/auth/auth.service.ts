@@ -70,7 +70,7 @@ export class AuthService {
   }
 
   getUserIdFromURI(token: string) {
-    let tokenUserId = token.match('/vk_user_id=d{4,}/gm');
+    let tokenUserId = token.match(new RegExp('vk_user_id=d{4,}', 'gm'));
 
     if (tokenUserId == null) {
       throw new HttpException(
