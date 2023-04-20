@@ -39,20 +39,10 @@ export class AuthService {
       user = await this.userService.createUser(this.getUserIdFromURI(dto.uri));
     }
 
-    const token = await this.generateToken(user, dto.uri);
-
-    return token;
+    return 'successul';
   }
  //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
-  private async generateToken(user: User, token: string) {
-    const payload = {
-      userId: user.userId,
-      token 
-    };
-    return {
-      token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
-    };
-  }
+
 
   async getUserData(token: string) {
 
