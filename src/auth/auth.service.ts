@@ -27,6 +27,8 @@ export class AuthService {
   ) {}
 
   async signUpIn(token: string) {
+    console.log(token);
+    
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
