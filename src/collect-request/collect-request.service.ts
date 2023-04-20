@@ -353,7 +353,7 @@ export class CollectRequestService {
           [Op.ne]: 'Заблокирована модерацией',
         },
       },
-      order: [['updatedAt', 'DESC']],
+      order: [['id', 'DESC']],
       include: {
         model: User,
         as: 'user',
