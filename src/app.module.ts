@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { VkEventModule } from './vk-event/vk-event.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { claimRequest } from './models/request-claim.model';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { APP_GUARD } from '@nestjs/core';
       username: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
       database: process.env.DB_NAME || 'vkma-auth',
-      models: [User, Request, Subcription],
+      models: [User, Request, Subcription, claimRequest],
       autoLoadModels: true,
       timezone: '+03:00',
       pool: {
