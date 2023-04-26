@@ -96,7 +96,8 @@ export class CollectRequestController {
     return this.collectRequestService.getRequestByURI(uri);
   }
 
-  @UseGuards(JwtAuthGuard)  
+  @UseGuards(JwtAuthGuard) 
+  @SkipThrottle(false) 
   @Post('/claim')
   claimRequest(
     @Headers('Authorization') authorization,
