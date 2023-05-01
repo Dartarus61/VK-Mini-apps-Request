@@ -3,6 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { Op } from 'sequelize';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
 import {
@@ -11,6 +12,7 @@ import {
   KEYBOARD_FOR_CLAIM,
   MESSAGE_TEXT,
 } from 'src/core/constants';
+import { claimRequest } from 'src/models/request-claim.model';
 import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
 import { User } from 'src/models/user.model';
@@ -23,6 +25,8 @@ export class CollectRequestService {
   constructor(
     @InjectModel(Request) private requestRepository: typeof Request,
     @InjectModel(Subcription) private subcriptionRepository: typeof Subcription,
+    @InjectModel(claimRequest)
+    private claimRequestRepository: typeof claimRequest,
     private authService: AuthService,
     private readonly httpService: HttpService,
   ) {}
@@ -271,6 +275,20 @@ export class CollectRequestService {
       throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
     }
 
+    const candidateToClaim = await this.claimRequestRepository.findOne({
+      where: {
+        userId: user.id,
+        requestId: request.id,
+      },
+    });
+
+    if (candidateToClaim) {
+      throw new HttpException(
+        'Данный пользователь уже подавал жалобу на данную заявку',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const userData = await this.httpService.get(
       `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
     );
@@ -278,6 +296,11 @@ export class CollectRequestService {
     const username = (
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
+
+    this.claimRequestRepository.create({
+      userId: user.id,
+      requestId: request.id,
+    });
 
     const { data } = await firstValueFrom(
       this.httpService
@@ -347,6 +370,12 @@ export class CollectRequestService {
   ) {
     const requests = await this.requestRepository.findAll({
       offset: 1,
+      where: {
+        banReason: {
+          [Op.ne]: 'Заблокирована модерацией',
+        },
+      },
+      order: [['id', 'ASC']],
       include: {
         model: User,
         as: 'user',
@@ -373,6 +402,14 @@ export class CollectRequestService {
         },
       },
     );
+
+    const request = await this.requestRepository.findOne({ where: { uri } });
+
+    this.claimRequestRepository.destroy({
+      where: {
+        requestId: request.id,
+      },
+    });
   }
 
   async verifyUserAndRequest(

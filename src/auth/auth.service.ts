@@ -32,7 +32,19 @@ export class AuthService {
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
-      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'URI is invalid while signUpIn',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const userId = this.getUserIdFromURI(dto.uri);
+
+    if (userId !== dto.userId) {
+      throw new HttpException(
+        'User ID is not an equal',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(token));
@@ -41,20 +53,47 @@ export class AuthService {
       user = await this.userService.createUser(this.getUserIdFromURI(token));
     }
 
+
     return 'successul';
   }
  //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
 
+
+  verifyUserId(token: string) {
+    return this.verifyLaunchParams(token, PRIVATE_KEY);
+  }
+
+  getUserIdFromURI(token: string) {
+    let tokenUserId = token.match(new RegExp('vk_user_id=\\d*', 'gm'));
+
+    if (tokenUserId == null) {
+      throw new HttpException(
+        'URI is invalid while get user from uri',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const userId = tokenUserId[0].split('=')[1];
+    console.log(+userId);
+
+    return +userId;
+  }
 
   async getUserData(token: string) {
 
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
-      throw new HttpException('URI is invalid', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'URI is invalid while get user data',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(token));
+    const user = await this.userService.getUserByVkUserId(
+      this.getUserIdFromURI(token),
+    );
+
 
     return user;
   }
