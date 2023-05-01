@@ -26,8 +26,10 @@ export class AuthService {
     private requestsService: CollectRequestService,
   ) {}
 
-  async signUpIn(dto: AuthenticationDTO) {
-    const verifyUser = this.verifyLaunchParams(dto.uri, PRIVATE_KEY);
+  async signUpIn(token: string) {
+    console.log(token);
+    
+    const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
       throw new HttpException(
@@ -45,25 +47,17 @@ export class AuthService {
       );
     }
 
-    let user = await this.userService.getUserByVkUserId(dto.userId);
+    let user = await this.userService.getUserByVkUserId(this.getUserIdFromURI(token));
 
     if (!user) {
-      user = await this.userService.createUser(dto.userId);
+      user = await this.userService.createUser(this.getUserIdFromURI(token));
     }
 
-    //const token = await this.generateToken(user);
 
-    return 'successful';
+    return 'successul';
   }
+ //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
 
-  private async generateToken(user: User) {
-    const payload = {
-      userId: user.userId,
-    };
-    return {
-      token: this.jwtService.sign(payload, { secret: PRIVATE_KEY }),
-    };
-  }
 
   verifyUserId(token: string) {
     return this.verifyLaunchParams(token, PRIVATE_KEY);
@@ -86,6 +80,7 @@ export class AuthService {
   }
 
   async getUserData(token: string) {
+
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {
@@ -98,6 +93,7 @@ export class AuthService {
     const user = await this.userService.getUserByVkUserId(
       this.getUserIdFromURI(token),
     );
+
 
     return user;
   }
@@ -123,6 +119,22 @@ export class AuthService {
     };
 
     return finalObject;
+  }
+
+  verifyUserId(token: string) {
+    return this.verifyLaunchParams(token, PRIVATE_KEY)
+  }
+
+  getUserIdFromURI(token: string) {
+    let tokenUserId = token.match('/vk_user_id=\d{4,}/gm')
+
+    if (tokenUserId == null){
+      throw new HttpException('URI is invalid', HttpStatus.BAD_REQUEST)
+    }
+
+    const userId = tokenUserId[0].split('=')[1]
+
+    return +userId
   }
 
   private verifyLaunchParams(

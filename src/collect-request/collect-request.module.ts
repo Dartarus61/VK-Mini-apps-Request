@@ -9,6 +9,7 @@ import { Request } from 'src/models/request.model';
 import { Subcription } from 'src/models/subcriptions.model';
 import { CollectRequestController } from './collect-request.controller';
 import { CollectRequestService } from './collect-request.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [CollectRequestController],

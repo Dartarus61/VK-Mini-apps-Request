@@ -7,6 +7,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { HttpModule } from '@nestjs/axios';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   providers: [
@@ -17,7 +18,9 @@ import { HttpModule } from '@nestjs/axios';
     },
   ],
   exports: [UserService],
-  imports: [SequelizeModule.forFeature([User]), forwardRef(() => AuthModule), HttpModule],
+  imports: [JwtModule.register({
+    secret: process.env.PRIVATE_KEY,
+  }),SequelizeModule.forFeature([User]), forwardRef(() => AuthModule), HttpModule],
   controllers: [UserController],
 })
 export class UserModule {}

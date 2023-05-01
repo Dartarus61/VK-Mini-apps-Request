@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
@@ -9,6 +9,7 @@ import {
 import { SkipThrottle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { AuthenticationDTO } from './dto/authentication.dto';
+import { JwtAuthGuard } from './auth.guard';
 
 @ApiTags('auth')
 @SkipThrottle()
@@ -20,14 +21,15 @@ export class AuthController {
   @ApiResponse({ status: 200 })
   @Post('/signUpIn')
   signUpIn(
-    @Body('userId')
-    userId: number,
     @Headers('Authorization') authorization,
   ) {
+    console.log(authorization);
+    
     const uri = authorization.split(' ')[1];
-    return this.authService.signUpIn(new AuthenticationDTO({ userId, uri }));
+    return this.authService.signUpIn(uri);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/whoAmI')
   whoAmI(@Headers('Authorization') authorization) {
     const uri = authorization.split(' ')[1];
