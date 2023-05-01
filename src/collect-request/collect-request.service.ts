@@ -65,9 +65,9 @@ export class CollectRequestService {
 
         const uri = `${user.userId}_${request.id}`;
 
-        await request.$set('uri', uri, { transaction: t });
+        /*         await request.$set('uri', uri, { transaction: t });
 
-        await request.save({ transaction: t });
+        await request.save({ transaction: t }); */
 
         await this.requestRepository.update(
           { uri },
@@ -85,6 +85,7 @@ export class CollectRequestService {
       return result;
     } catch (error) {
       console.log(error);
+      throw error;
     }
 
     /* if (user.requests.length == 0) {
