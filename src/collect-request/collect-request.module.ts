@@ -22,6 +22,9 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   exports: [CollectRequestService],
   imports: [
+    JwtModule.register({
+      secret: process.env.PRIVATE_KEY,
+    }),
     SequelizeModule.forFeature([Request, Subcription, claimRequest]),
     forwardRef(() => AuthModule),
     HttpModule,
