@@ -48,6 +48,27 @@ export class AuthService {
 
     return 'successul';
   }
+  //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
+
+  verifyUserId(token: string) {
+    return this.verifyLaunchParams(token, PRIVATE_KEY);
+  }
+
+  getUserIdFromURI(token: string) {
+    let tokenUserId = token.match(new RegExp('vk_user_id=\\d*', 'gm'));
+
+    if (tokenUserId == null) {
+      throw new HttpException(
+        'URI is invalid while get user from uri',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const userId = tokenUserId[0].split('=')[1];
+    console.log(+userId);
+
+    return +userId;
+  }
 
   async getUserData(token: string) {
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
@@ -87,22 +108,6 @@ export class AuthService {
     };
 
     return finalObject;
-  }
-
-  verifyUserId(token: string) {
-    return this.verifyLaunchParams(token, PRIVATE_KEY);
-  }
-
-  getUserIdFromURI(token: string) {
-    let tokenUserId = token.match('/vk_user_id=d{4,}/gm');
-
-    if (tokenUserId == null) {
-      throw new HttpException('URI is invalid', HttpStatus.BAD_REQUEST);
-    }
-
-    const userId = tokenUserId[0].split('=')[1];
-
-    return +userId;
   }
 
   private verifyLaunchParams(
