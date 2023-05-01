@@ -86,8 +86,12 @@ export class CollectRequestController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/sub/get/:id')
-  getSubsByRequestId(@Param('id') id: number) {
-    return this.collectRequestService.getSubsByRequestId(id);
+  getSubsByRequestId(
+    @Param('id') id: number,
+    @Headers('Authorization') authorization,
+  ) {
+    const uri = authorization.split(' ')[1];
+    return this.collectRequestService.getSubsByRequestId(id, uri);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -96,8 +100,8 @@ export class CollectRequestController {
     return this.collectRequestService.getRequestByURI(uri);
   }
 
-  @UseGuards(JwtAuthGuard) 
-  @SkipThrottle(false) 
+  @UseGuards(JwtAuthGuard)
+  @SkipThrottle(false)
   @Post('/claim')
   claimRequest(
     @Headers('Authorization') authorization,

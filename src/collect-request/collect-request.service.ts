@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
 import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
 import {
@@ -29,6 +30,7 @@ export class CollectRequestService {
     private claimRequestRepository: typeof claimRequest,
     private authService: AuthService,
     private readonly httpService: HttpService,
+    private sequelize: Sequelize,
   ) {}
 
   async createRequest(dto: CreateRequestDTO) {
@@ -38,7 +40,54 @@ export class CollectRequestService {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
 
-    if (user.requests.length == 0) {
+    try {
+      const result = await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
+
+        const existingRequestsCount = await this.requestRepository.count({
+          transaction: t,
+          where: {
+            userId: user.id,
+          },
+        });
+
+        if (existingRequestsCount > 0 && !user.isPrem) {
+          throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+        }
+
+        const request = await this.requestRepository.create(
+          {
+            title: dto.title,
+            userId: user.id,
+          },
+          transactionHost,
+        );
+
+        const uri = `${user.userId}_${request.id}`;
+
+        await request.$set('uri', uri, { transaction: t });
+
+        await request.save({ transaction: t });
+
+        await this.requestRepository.update(
+          { uri },
+          {
+            transaction: t,
+            where: {
+              id: request.id,
+            },
+          },
+        );
+
+        return this.requestRepository.findByPk(request.id);
+      });
+
+      return result;
+    } catch (error) {
+      console.log(error);
+    }
+
+    /* if (user.requests.length == 0) {
       const request = await this.requestRepository.create({
         title: dto.title,
         userId: user.id,
@@ -76,7 +125,7 @@ export class CollectRequestService {
       return this.requestRepository.findByPk(request.id);
     }
 
-    throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+    throw new HttpException('Access denied', HttpStatus.FORBIDDEN); */
   }
 
   async updateRequest(dto: UpdateRequestDTO) {
@@ -297,7 +346,7 @@ export class CollectRequestService {
       await lastValueFrom(userData.pipe(map((res) => res.data)))
     ).response[0];
 
-    this.claimRequestRepository.create({
+    await this.claimRequestRepository.create({
       userId: user.id,
       requestId: request.id,
     });
@@ -350,16 +399,29 @@ export class CollectRequestService {
     ).count;
   }
 
-  async getSubsByRequestId(id: number) {
+  async getSubsByRequestId(id: number, uri: string) {
+    const user_id = this.authService.getUserIdFromURI(uri);
+
     return await this.subcriptionRepository.findAll({
       attributes: ['requestId'],
       where: {
         requestId: id,
       },
-      include: {
-        model: User,
-        attributes: ['userId'],
-      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['userId'],
+        },
+        {
+          model: Request,
+          as: 'request',
+          attributes: ['userId'],
+          where: {
+            userId: user_id,
+          },
+        },
+      ],
     });
   }
 
