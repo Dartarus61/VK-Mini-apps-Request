@@ -425,6 +425,8 @@ export class CollectRequestService {
       ],
     });
 
+    console.log(users);
+
     const ids = users.map((el) => {
       return el.user.userId;
     });
