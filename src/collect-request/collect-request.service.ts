@@ -401,7 +401,7 @@ export class CollectRequestService {
   }
 
   async getSubsByRequestId(id: number, uri: string) {
-    const user_id = this.authService.getUserIdFromURI(uri);
+    const author = await this.authService.getUserData(uri);
 
     const users = await this.subcriptionRepository.findAll({
       attributes: ['requestId'],
@@ -419,7 +419,7 @@ export class CollectRequestService {
           as: 'request',
           attributes: ['userId'],
           where: {
-            userId: user_id,
+            userId: author.id,
           },
         },
       ],
@@ -443,6 +443,9 @@ export class CollectRequestService {
       .response[0];
 
     console.log(subsData);
+    for (let i = 0; i < ids.length; i++) {
+      subsData[i].userId = ids[i];
+    }
 
     return subsData;
   }
