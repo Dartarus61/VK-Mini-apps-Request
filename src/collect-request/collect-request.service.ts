@@ -403,7 +403,7 @@ export class CollectRequestService {
   async getSubsByRequestId(id: number, uri: string) {
     const user_id = this.authService.getUserIdFromURI(uri);
 
-    return await this.subcriptionRepository.findAll({
+    const users = await this.subcriptionRepository.findAll({
       attributes: ['requestId'],
       where: {
         requestId: id,
@@ -424,6 +424,21 @@ export class CollectRequestService {
         },
       ],
     });
+
+    const ids = users.map((el) => {
+      return el.user.userId;
+    });
+
+    const subs = this.httpService.get(
+      `${VK_URL}users.get?user_ids=${ids.join(
+        ',',
+      )}&fields=photo_200&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const subsData = (await lastValueFrom(subs.pipe(map((res) => res.data))))
+      .response[0];
+
+    return subsData;
   }
 
   async changeVisabilityOfRequest(
