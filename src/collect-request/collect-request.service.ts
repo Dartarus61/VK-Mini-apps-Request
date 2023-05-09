@@ -429,6 +429,8 @@ export class CollectRequestService {
       return el.user.userId;
     });
 
+    console.log(ids);
+
     const subs = this.httpService.get(
       `${VK_URL}users.get?user_ids=${ids.join(
         ',',
@@ -437,6 +439,8 @@ export class CollectRequestService {
 
     const subsData = (await lastValueFrom(subs.pipe(map((res) => res.data))))
       .response[0];
+
+    console.log(subsData);
 
     return subsData;
   }
