@@ -430,9 +430,7 @@ export class CollectRequestService {
     });
 
     const subs = this.httpService.get(
-      `${VK_URL}users.get?user_ids=${ids.join(
-        ',',
-      )}&fields=photo_200&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+      `${VK_URL}users.get?user_ids=${ids.join()}&fields=photo_200&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
     );
 
     const subsData = (await lastValueFrom(subs.pipe(map((res) => res.data))))
