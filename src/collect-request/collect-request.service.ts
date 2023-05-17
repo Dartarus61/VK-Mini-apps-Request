@@ -34,15 +34,15 @@ export class CollectRequestService {
   ) {}
 
   async createRequest(dto: CreateRequestDTO) {
-    const user = await this.authService.getUserData(dto.token);
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-
     try {
       const result = await this.sequelize.transaction(async (t) => {
         const transactionHost = { transaction: t };
+
+        const user = await this.authService.getUserData(dto.token);
+
+        if (!user) {
+          throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        }
 
         const existingRequestsCount = await this.requestRepository.count({
           transaction: t,
@@ -79,7 +79,7 @@ export class CollectRequestService {
           },
         );
 
-        return this.requestRepository.findByPk(request.id);
+        return this.requestRepository.findByPk(request.id, { transaction: t });
       });
 
       return result;
@@ -310,70 +310,79 @@ export class CollectRequestService {
   }
 
   async claim(token: string, url: string) {
-    const user = await this.authService.getUserData(token);
+    try {
+      const result = await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const user = await this.authService.getUserData(token);
+
+        if (!user) {
+          throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        }
+
+        const request = await this.requestRepository.findOne({
+          where: { uri: url },
+          include: { model: User, as: 'user' },
+        });
+
+        if (!request) {
+          throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
+        }
+
+        const candidateToClaim = await this.claimRequestRepository.findOne({
+          where: {
+            userId: user.id,
+            requestId: request.id,
+          },
+        });
+
+        if (candidateToClaim) {
+          throw new HttpException(
+            'Данный пользователь уже подавал жалобу на данную заявку',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+
+        const userData = await this.httpService.get(
+          `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        );
+
+        const username = (
+          await lastValueFrom(userData.pipe(map((res) => res.data)))
+        ).response[0];
+
+        await this.claimRequestRepository.create({
+          userId: user.id,
+          requestId: request.id,
+        });
+
+        const { data } = await firstValueFrom(
+          this.httpService
+            .post(
+              `${VK_URL}messages.send?user_ids=${GENA_ID}&random_id=${this.getRandomInt(
+                10000,
+                10000000,
+              )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
+                `${username.first_name} ${username.last_name}`,
+                user.userId,
+                url,
+              )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
+            )
+            .pipe(
+              catchError((error: AxiosError) => {
+                console.log(error.response.data);
+                throw 'An error happened!';
+              }),
+            ),
+        );
+        console.log(data);
+
+        return 'successful';
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-
-    const request = await this.requestRepository.findOne({
-      where: { uri: url },
-      include: { model: User, as: 'user' },
-    });
-
-    if (!request) {
-      throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
-    }
-
-    const candidateToClaim = await this.claimRequestRepository.findOne({
-      where: {
-        userId: user.id,
-        requestId: request.id,
-      },
-    });
-
-    if (candidateToClaim) {
-      throw new HttpException(
-        'Данный пользователь уже подавал жалобу на данную заявку',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    const userData = await this.httpService.get(
-      `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    );
-
-    const username = (
-      await lastValueFrom(userData.pipe(map((res) => res.data)))
-    ).response[0];
-
-    await this.claimRequestRepository.create({
-      userId: user.id,
-      requestId: request.id,
-    });
-
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(
-          `${VK_URL}messages.send?user_ids=${GENA_ID}&random_id=${this.getRandomInt(
-            10000,
-            10000000,
-          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
-            `${username.first_name} ${username.last_name}`,
-            user.userId,
-            url,
-          )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
-        )
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error.response.data);
-            throw 'An error happened!';
-          }),
-        ),
-    );
-    console.log(data);
-
-    return 'successful';
   }
 
   async getAllRequest(token: string) {
