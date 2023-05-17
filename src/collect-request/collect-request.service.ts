@@ -434,7 +434,7 @@ export class CollectRequestService {
     );
 
     const subsData = (await lastValueFrom(subs.pipe(map((res) => res.data))))
-      .response[0];
+      .response;
 
     return subsData;
   }
