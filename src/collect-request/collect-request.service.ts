@@ -455,11 +455,11 @@ export class CollectRequestService {
   ) {
     const count = await this.requestRepository.findAndCountAll({
       offset: 1,
-      where: {
+      /*       where: {
         banReason: {
           [Op.ne]: 'Заблокирована модерацией',
         },
-      },
+      }, */
       order: [['id', 'ASC']],
       include: {
         model: User,
@@ -473,11 +473,11 @@ export class CollectRequestService {
 
     const requests = await this.requestRepository.findAll({
       offset: 1,
-      where: {
+      /*       where: {
         banReason: {
           [Op.ne]: 'Заблокирована модерацией',
         },
-      },
+      }, */
       order: [['id', 'ASC']],
       include: {
         model: User,
@@ -490,8 +490,10 @@ export class CollectRequestService {
 
     await Promise.all([
       requests.forEach(async (el) => {
-        await el.update({ active: flag, banReason: message });
-        await el.save();
+        if (el.banReason != 'Заблокирована модерацией') {
+          await el.update({ active: flag, banReason: message });
+          await el.save();
+        }
       }),
     ]);
   }
