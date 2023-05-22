@@ -453,6 +453,24 @@ export class CollectRequestService {
     flag: boolean,
     message: string,
   ) {
+    const count = await this.requestRepository.findAndCountAll({
+      offset: 1,
+      where: {
+        banReason: {
+          [Op.ne]: 'Заблокирована модерацией',
+        },
+      },
+      order: [['id', 'ASC']],
+      include: {
+        model: User,
+        as: 'user',
+        where: {
+          userId,
+        },
+      },
+    });
+    console.log(count.count);
+
     const requests = await this.requestRepository.findAll({
       offset: 1,
       where: {
