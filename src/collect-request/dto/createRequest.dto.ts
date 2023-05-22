@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class CreateRequestDTO {
   constructor(model) {
@@ -8,6 +8,7 @@ export class CreateRequestDTO {
   }
 
   @IsString({ message: 'Должно быть строкой' })
+  @Length(1, 32, { message: 'Должно быть длиной 1-32 символа' })
   readonly title: string;
 
   @ApiProperty({
