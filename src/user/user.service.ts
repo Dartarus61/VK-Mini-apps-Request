@@ -18,7 +18,7 @@ export class UserService {
     @InjectModel(User) private userRepository: typeof User,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
-    private readonly httpService: HttpService
+    private readonly httpService: HttpService,
   ) {}
 
   async createUser(userId: number) {
@@ -63,7 +63,7 @@ export class UserService {
 
     this.httpService.get(
       `${VK_URL}messages.denyMessagesFromGroup?group_id=${GROUP_ID}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    )
+    );
 
     return this.userRepository.findByPk(user.id);
   }
@@ -83,7 +83,10 @@ export class UserService {
         { where: { userId } },
       );
     } else {
-      await this.userRepository.update({ isPrem: flag }, { where: { userId } });
+      await this.userRepository.update(
+        { isPrem: flag, expiredPrem: null },
+        { where: { userId } },
+      );
     }
 
     return 'ok';

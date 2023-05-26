@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { AxiosError } from 'axios';
 import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
 import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import { AuthService } from 'src/auth/auth.service';
 import { GROUP_ACCESS_KEY, VK_URL } from 'src/core/config';
 import {
@@ -29,16 +30,65 @@ export class CollectRequestService {
     private claimRequestRepository: typeof claimRequest,
     private authService: AuthService,
     private readonly httpService: HttpService,
+    private sequelize: Sequelize,
   ) {}
 
   async createRequest(dto: CreateRequestDTO) {
-    const user = await this.authService.getUserData(dto.token);
+    try {
+      const result = await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const user = await this.authService.getUserData(dto.token);
+
+        if (!user) {
+          throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        }
+
+        const existingRequestsCount = await this.requestRepository.count({
+          transaction: t,
+          where: {
+            userId: user.id,
+          },
+        });
+
+        if (existingRequestsCount > 0 && !user.isPrem) {
+          throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+        }
+
+        const request = await this.requestRepository.create(
+          {
+            title: dto.title,
+            userId: user.id,
+          },
+          transactionHost,
+        );
+
+        const uri = `${user.userId}_${request.id}`;
+
+        /*         await request.$set('uri', uri, { transaction: t });
+
+        await request.save({ transaction: t }); */
+
+        await this.requestRepository.update(
+          { uri },
+          {
+            transaction: t,
+            where: {
+              id: request.id,
+            },
+          },
+        );
+
+        return this.requestRepository.findByPk(request.id, { transaction: t });
+      });
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
 
-    if (user.requests.length == 0) {
+    /* if (user.requests.length == 0) {
       const request = await this.requestRepository.create({
         title: dto.title,
         userId: user.id,
@@ -76,7 +126,7 @@ export class CollectRequestService {
       return this.requestRepository.findByPk(request.id);
     }
 
-    throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
+    throw new HttpException('Access denied', HttpStatus.FORBIDDEN); */
   }
 
   async updateRequest(dto: UpdateRequestDTO) {
@@ -260,70 +310,79 @@ export class CollectRequestService {
   }
 
   async claim(token: string, url: string) {
-    const user = await this.authService.getUserData(token);
+    try {
+      const result = await this.sequelize.transaction(async (t) => {
+        const transactionHost = { transaction: t };
 
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const user = await this.authService.getUserData(token);
+
+        if (!user) {
+          throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        }
+
+        const request = await this.requestRepository.findOne({
+          where: { uri: url },
+          include: { model: User, as: 'user' },
+        });
+
+        if (!request) {
+          throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
+        }
+
+        const candidateToClaim = await this.claimRequestRepository.findOne({
+          where: {
+            userId: user.id,
+            requestId: request.id,
+          },
+        });
+
+        if (candidateToClaim) {
+          throw new HttpException(
+            'Данный пользователь уже подавал жалобу на данную заявку',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+
+        const userData = await this.httpService.get(
+          `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+        );
+
+        const username = (
+          await lastValueFrom(userData.pipe(map((res) => res.data)))
+        ).response[0];
+
+        await this.claimRequestRepository.create({
+          userId: user.id,
+          requestId: request.id,
+        });
+
+        const { data } = await firstValueFrom(
+          this.httpService
+            .post(
+              `${VK_URL}messages.send?user_ids=${GENA_ID}&random_id=${this.getRandomInt(
+                10000,
+                10000000,
+              )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
+                `${username.first_name} ${username.last_name}`,
+                user.userId,
+                url,
+              )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
+            )
+            .pipe(
+              catchError((error: AxiosError) => {
+                console.log(error.response.data);
+                throw 'An error happened!';
+              }),
+            ),
+        );
+        console.log(data);
+
+        return 'successful';
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-
-    const request = await this.requestRepository.findOne({
-      where: { uri: url },
-      include: { model: User, as: 'user' },
-    });
-
-    if (!request) {
-      throw new HttpException('Request not found', HttpStatus.BAD_REQUEST);
-    }
-
-    const candidateToClaim = await this.claimRequestRepository.findOne({
-      where: {
-        userId: user.id,
-        requestId: request.id,
-      },
-    });
-
-    if (candidateToClaim) {
-      throw new HttpException(
-        'Данный пользователь уже подавал жалобу на данную заявку',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    const userData = await this.httpService.get(
-      `${VK_URL}users.get?user_ids=${user.userId}&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
-    );
-
-    const username = (
-      await lastValueFrom(userData.pipe(map((res) => res.data)))
-    ).response[0];
-
-    this.claimRequestRepository.create({
-      userId: user.id,
-      requestId: request.id,
-    });
-
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(
-          `${VK_URL}messages.send?user_ids=${GENA_ID}&random_id=${this.getRandomInt(
-            10000,
-            10000000,
-          )}&v=5.131&access_token=${GROUP_ACCESS_KEY}&message=${CLAIM_TEXT(
-            `${username.first_name} ${username.last_name}`,
-            user.userId,
-            url,
-          )}&keyboard=${JSON.stringify(KEYBOARD_FOR_CLAIM(url))}`,
-        )
-        .pipe(
-          catchError((error: AxiosError) => {
-            console.log(error.response.data);
-            throw 'An error happened!';
-          }),
-        ),
-    );
-    console.log(data);
-
-    return 'successful';
   }
 
   async getAllRequest(token: string) {
@@ -350,17 +409,43 @@ export class CollectRequestService {
     ).count;
   }
 
-  async getSubsByRequestId(id: number) {
-    return await this.subcriptionRepository.findAll({
+  async getSubsByRequestId(id: number, uri: string) {
+    const author = await this.authService.getUserData(uri);
+
+    const users = await this.subcriptionRepository.findAll({
       attributes: ['requestId'],
       where: {
         requestId: id,
       },
-      include: {
-        model: User,
-        attributes: ['userId'],
-      },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['userId'],
+        },
+        {
+          model: Request,
+          as: 'request',
+          attributes: ['userId'],
+          where: {
+            userId: author.id,
+          },
+        },
+      ],
     });
+
+    const ids = users.map((el) => {
+      return el.user.userId;
+    });
+
+    const subs = this.httpService.get(
+      `${VK_URL}users.get?user_ids=${ids.join()}&fields=photo_200&v=5.131&access_token=${GROUP_ACCESS_KEY}`,
+    );
+
+    const subsData = (await lastValueFrom(subs.pipe(map((res) => res.data))))
+      .response;
+
+    return subsData;
   }
 
   async changeVisabilityOfRequest(
@@ -368,13 +453,31 @@ export class CollectRequestService {
     flag: boolean,
     message: string,
   ) {
-    const requests = await this.requestRepository.findAll({
+    const count = await this.requestRepository.findAndCountAll({
       offset: 1,
-      where: {
+      /*       where: {
         banReason: {
           [Op.ne]: 'Заблокирована модерацией',
         },
+      }, */
+      order: [['id', 'ASC']],
+      include: {
+        model: User,
+        as: 'user',
+        where: {
+          userId,
+        },
       },
+    });
+    console.log(count.count);
+
+    const requests = await this.requestRepository.findAll({
+      offset: 1,
+      /*       where: {
+        banReason: {
+          [Op.ne]: 'Заблокирована модерацией',
+        },
+      }, */
       order: [['id', 'ASC']],
       include: {
         model: User,
@@ -387,8 +490,10 @@ export class CollectRequestService {
 
     await Promise.all([
       requests.forEach(async (el) => {
-        await el.update({ active: flag, banReason: message });
-        await el.save();
+        if (el.banReason != 'Заблокирована модерацией') {
+          await el.update({ active: flag, banReason: message });
+          await el.save();
+        }
       }),
     ]);
   }

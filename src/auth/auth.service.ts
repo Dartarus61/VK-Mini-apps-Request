@@ -50,11 +50,20 @@ export class AuthService {
   }
   //TODO поменять payload токена, добавить проверку ид из строки и из userId в других методах
 
-  verifyUserId(token: string) {
+  verifyUserId(token: string): boolean {
     return this.verifyLaunchParams(token, PRIVATE_KEY);
   }
 
-  getUserIdFromURI(token: string) {
+  getUserIdFromURI(token: string): number {
+    const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
+
+    if (!verifyUser) {
+      throw new HttpException(
+        'URI is invalid while get user data',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     let tokenUserId = token.match(new RegExp('vk_user_id=\\d*', 'gm'));
 
     if (tokenUserId == null) {
@@ -70,7 +79,7 @@ export class AuthService {
     return +userId;
   }
 
-  async getUserData(token: string) {
+  async getUserData(token: string): Promise<User> {
     const verifyUser = this.verifyLaunchParams(token, PRIVATE_KEY);
 
     if (!verifyUser) {

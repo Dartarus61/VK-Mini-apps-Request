@@ -7,7 +7,7 @@ import { JwtAuthGuard } from 'src/auth/auth.guard';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Throttle(5, 30)
+  @Throttle(10, 30)
   @UseGuards(JwtAuthGuard)
   @Put('/editNotify')
   editNotify(

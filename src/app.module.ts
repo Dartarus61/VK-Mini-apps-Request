@@ -16,7 +16,7 @@ import { claimRequest } from './models/request-claim.model';
   imports: [
     ThrottlerModule.forRoot({
       ttl: 60,
-      limit: 20,
+      limit: 30,
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
