@@ -15,6 +15,7 @@ async function bootstrap() {
       'http://127.0.0.1:5000',
       'http://188.225.87.70:3000',
       'http://188.225.87.70:5000',
+      'https://zayvka.vercel.app',
       new RegExp('vk-apps.com'),
       new RegExp('.vercel.app'),
     ],
